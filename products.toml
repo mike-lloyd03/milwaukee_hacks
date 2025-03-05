@@ -1,179 +1,47 @@
-[[products]]
-name = "Track Saw"
-price = 399
-
-[[products]]
-name = "Router"
-price = 349
-
-[[products]]
-name = "Hole Hawg"
-price = 299
-
-[[products]]
-name = "Jig Saw"
-price = 199
-
-[[products]]
-name = "1 in Impact"
-price = 799
-
-[[products]]
-name = "Shop Vac Set"
-price = 799
-
-[[products]]
-name = "9 Gal Shop Vac"
-price = 299
-
-[[products]]
-name = "Circ"
-price = 249
-
-[[products]]
-name = "3/8 Compact Impact Wrench"
-price = 229
-
-[[products]]
-name = "Tower Light"
-price = 229
-
-[[products]]
-name = "Hedge Trimmer"
-price = 279
-
-[[products]]
-name = "1/2 Impact Wrench"
-price = 299
-
-[[products]]
-name = "Super Charger"
-price = 249
-
-[[products]]
-name = "Sawzall"
-price = 199
-
-[[products]]
-name = "3/8 Impact Wrench"
-price = 249
-
-[[products]]
-name = "DA Polisher"
-price = 329
-
-[[products]]
-name = "Super Hawg"
-price = 449
-
-[[products]]
-name = "1/2 Hammer Drill"
-price = 299
-
-[[products]]
-name = "Miter Saw"
-price = 449
-
-[[products]]
-name = "Leaf Blower"
-price = 399
-
-[[products]]
-name = "Bandsaw"
-price = 329
-
-[[products]]
-name = "18Ga Crown Stapler"
-price = 299
-
-[[products]]
-name = "Cutoff Saw"
-price = 899
-
-[[products]]
-name = "6.0Ah HO Battery"
-price = 279
-
-[[products]]
-name = "6 Gal Shop Vac"
-price = 219
-
-[[products]]
-name = "Packout LED Light"
-price = 199
-
-[[products]]
-name = "2 Gal Air Compressor"
-price = 349
-
-[[products]]
-name = "1/2 in Hole Hawg"
-price = 299
-
-[[products]]
-name = "Compact Router"
-price = 199
-
-[[products]]
-name = "Bluetooth Speaker"
-price = 159
-
-[[products]]
-name = "Chainsaw"
-price = 499
-
-[[products]]
-name = "Rotary Hammer"
-price = 449
-
-[[products]]
-name = "Mid Torque 1/2 Impact Wrench"
-price = 249
-
-[[products]]
-name = "SDS Rotary Hammer"
-price = 499
-
-[[products]]
-name = "18Ga Brad Nailer"
-price = 399
-
-[[products]]
-name = "SDS-Plus Rotary Hammer"
-price = 349
-
-[[products]]
-name = "6.0Ah Forge Battery"
-price = 199
-
-[[products]]
-name = "Super Hawg"
-price = 429
-
-[[products]]
-name = "1/4 Hex Impact"
-price = 149
-
-[[products]]
-name = "Hackzall"
-price = 169
-
-[[products]]
-name = "Belt Sander"
-price = 279
-
-[[products]]
-name = "Packout Radio"
-price = 299
-
-[[products]]
-name = "Grinder"
-price = 199
-
-[[products]]
-name = "16Ga Finish Nailer"
-price = 329
-
-[[products]]
-name = "Pole Saw"
-price = 349
+products = [
+  { name = "1/2 Hammer Drill", price = 299 },
+  { name = "1/2 Impact Wrench", price = 299 },
+  { name = "1/2 in Hole Hawg", price = 299 },
+  { name = "1/4 Hex Impact", price = 149 },
+  { name = "16Ga Finish Nailer", price = 329 },
+  { name = "18Ga Brad Nailer", price = 399 },
+  { name = "18Ga Crown Stapler", price = 299 },
+  { name = "1in Impact", price = 799 },
+  { name = "2 Gal Air Compressor", price = 349 },
+  { name = "3/8 Compact Impact Wrench", price = 229 },
+  { name = "3/8 Impact Wrench", price = 249 },
+  { name = "6 Gal Shop Vac", price = 219 },
+  { name = "6.0Ah Forge Battery", price = 199 },
+  { name = "6.0Ah HO Battery", price = 279 },
+  { name = "9 Gal Shop Vac", price = 299 },
+  { name = "Bandsaw", price = 329 },
+  { name = "Belt Sander", price = 279 },
+  { name = "Bluetooth Speaker", price = 159 },
+  { name = "Chainsaw", price = 499 },
+  { name = "Circ", price = 249 },
+  { name = "Compact Router", price = 199 },
+  { name = "Cutoff Saw", price = 899 },
+  { name = "DA Polisher", price = 329 },
+  { name = "Grinder", price = 199 },
+  { name = "Hackzall", price = 169 },
+  { name = "Hedge Trimmer", price = 279 },
+  { name = "Hole Hawg", price = 299 },
+  { name = "Jig Saw", price = 199 },
+  { name = "Leaf Blower", price = 399 },
+  { name = "Mid Torque 1/2 Impact Wrench", price = 249 },
+  { name = "Miter Saw", price = 449 },
+  { name = "Packout LED Light", price = 199 },
+  { name = "Packout Radio", price = 299 },
+  { name = "Pole Saw", price = 349 },
+  { name = "Rotary Hammer", price = 449 },
+  { name = "Router", price = 349 },
+  { name = "SDS Rotary Hammer", price = 499 },
+  { name = "SDS-Plus Rotary Hammer", price = 349 },
+  { name = "Sawzall", price = 199 },
+  { name = "Shop Vac Set", price = 799 },
+  { name = "Super Charger", price = 249 },
+  { name = "Super Hawg", price = 429 },
+  { name = "Super Hawg", price = 449 },
+  { name = "Tower Light", price = 229 },
+  { name = "Track Saw", price = 399 },
+]
