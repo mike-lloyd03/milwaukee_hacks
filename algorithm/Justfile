@@ -1,0 +1,2 @@
+build:
+    wasm-pack build -d ../web/src/lib/pkg
