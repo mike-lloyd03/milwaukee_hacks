@@ -15,7 +15,7 @@ pub fn bmsm(
 
     let mut combinations: Vec<Vec<&Product>> = vec![];
 
-    for i in 2..max_cart_size {
+    for i in 2..=max_cart_size {
         combinations.append(&mut products.iter().combinations_with_replacement(i).collect())
     }
 
