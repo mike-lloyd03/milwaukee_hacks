@@ -14,11 +14,13 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
+COPY web/pnpm-lock.yaml web/package.json ./
+
+RUN pnpm install
 
 COPY web /app
 COPY --from=rust_builder /src/pkg /app/src/lib/pkg
 
-# RUN pnpm install
 RUN pnpm run build
 
 ENV ORIGIN=http://localhost:3000
