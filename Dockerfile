@@ -19,6 +19,7 @@ COPY web/pnpm-lock.yaml web/package.json ./
 RUN pnpm install
 
 COPY web /app
+RUN mkdir /app/src/lib/pkg
 COPY --from=rust_builder /src/pkg /app/src/lib/pkg
 
 RUN pnpm run build

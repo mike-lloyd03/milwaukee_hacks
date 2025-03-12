@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { bmsm, Cart } from '$lib/pkg/milwaukee_hacks_rs';
+	import { bmsm, Cart } from '$lib/pkg/algorithm';
 	import { getProducts, formatCurrency } from '$lib/utils';
 	import { P, Card, NumberInput, Label, Heading, Button, Tooltip } from 'flowbite-svelte';
 
