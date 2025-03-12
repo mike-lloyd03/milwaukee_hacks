@@ -12,7 +12,18 @@
 	function getCarts(event: MouseEvent) {
 		event.preventDefault();
 		const allCarts = bmsm(products, cartSize, minTotal, requiredProducts);
-		carts = allCarts.slice(0, 3);
+		carts = allCarts.slice(0, 10);
+	}
+
+	let currentCart = $state(0);
+	function iterateCart(i: number) {
+		if (currentCart + i > carts.length - 1) {
+			currentCart = 0;
+		} else if (currentCart + i < 0) {
+			currentCart = carts.length - 1;
+		} else {
+			currentCart += i;
+		}
 	}
 
 	function cartSizeRange() {
@@ -28,6 +39,24 @@
 		} else if (minTotal > 10000) {
 			minTotal = 10000;
 		}
+	}
+	function discountAmount(cartTotal: number): number {
+		if (cartTotal < 350) {
+			return 0;
+		} else if (cartTotal < 600) {
+			return 80;
+		} else if (cartTotal < 800) {
+			return 180;
+		} else if (cartTotal < 1000) {
+			return 280;
+		} else {
+			return 400;
+		}
+	}
+
+	function calculatePromoPrice(cartTotal: number, productPrice: number): string {
+		const promoPrice = (1 - discountAmount(cartTotal) / cartTotal) * productPrice;
+		return formatCurrency(promoPrice);
 	}
 </script>
 
@@ -74,27 +103,43 @@
 		</Card>
 
 		<Card>
-			<Heading tag="h5">Best Carts</Heading>
+			<Heading tag="h5">Possible Carts</Heading>
 			<div class="my-4 space-y-2">
 				{#if carts.length > 0}
-					{#each carts as cart, i (cart)}
+					{#key currentCart}
 						<div class="rounded-md border border-gray-300 p-2 dark:border-gray-500">
-							<Heading tag="h6">Option {i + 1}</Heading>
-							{#each cart.items as item (item)}
+							<Heading tag="h6">Option {currentCart + 1}</Heading>
+							{#each carts[currentCart].items as item (item)}
 								<div class="flex justify-between">
-									<p class={requiredProducts.includes(item.name) ? 'text-red-500' : ''}>
+									<P color={requiredProducts.includes(item.name) ? 'text-red-500' : undefined}>
 										{item.name}
-									</p>
-									<p>{formatCurrency(item.price)}</p>
+									</P>
+									<P>{formatCurrency(item.price)}</P>
 								</div>
 							{/each}
 							<hr />
 							<div class="flex justify-between">
-								<p>Total</p>
-								<p>{formatCurrency(cart.total)}</p>
+								<P>Cart Total</P>
+								<P>{formatCurrency(carts[currentCart].total)}</P>
+							</div>
+							<div>
+								<P></P>
 							</div>
 						</div>
-					{/each}
+						<div>
+							<Heading tag="h6">Estimated Price After Promo</Heading>
+							{#each carts[currentCart].items as item}
+								<div class="flex justify-between">
+									{#if requiredProducts.includes(item.name)}
+										<P>{item.name}</P>
+										<P>{calculatePromoPrice(carts[currentCart].total, item.price)}</P>
+									{/if}
+								</div>
+							{/each}
+						</div>
+						<Button color="alternative" onclick={() => iterateCart(-1)}>Prev</Button>
+						<Button color="alternative" onclick={() => iterateCart(1)}>Next</Button>
+					{/key}
 				{:else}
 					<div>Awaiting Input</div>
 				{/if}
