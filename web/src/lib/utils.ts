@@ -4,7 +4,7 @@ import { type Product } from "$lib/types";
 // Returns the products available in the specified promo
 export function getProducts(promo: string): Product[] {
 	const products = productsRaw as Record<string, Product[]>;
-	return products[promo];
+	return products[promo].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function formatCurrency(value: number) {

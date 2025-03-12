@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { bmsm, Cart } from '$lib/pkg/algorithm';
 	import { getProducts, formatCurrency } from '$lib/utils';
-	import { P, Card, NumberInput, Label, Heading, Button, Tooltip } from 'flowbite-svelte';
+	import { P, Card, NumberInput, Label, Heading, Button, Tooltip, Input } from 'flowbite-svelte';
 
 	let cartSize = $state(4);
 	let minTotal = $state(1000);
 	let requiredProducts: string[] = $state([]);
 	let carts: Cart[] = $state([]);
 	let products = getProducts('m18BmsmSpring2025');
+	let productsFilter = $state('');
 
 	function getCarts(event: MouseEvent) {
 		event.preventDefault();
@@ -67,20 +68,25 @@
 			<div class="my-4 flex flex-col gap-4">
 				<Label>
 					Required Products
+					<Input class="mb-1" bind:value={productsFilter} placeholder="Search" />
 					<div
 						class="flex h-64 flex-col overflow-y-auto rounded-md border border-gray-300 p-2 dark:border-gray-500"
 					>
 						{#each products as product (product.name)}
-							<label class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300">
-								<input
-									class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 me-2 h-4 w-4 rounded border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800"
-									type="checkbox"
-									name="requiredProduct"
-									value={product.name}
-									bind:group={requiredProducts}
-								/>
-								{product.name}
-							</label>
+							{#if product.name.toLowerCase().includes(productsFilter.toLowerCase())}
+								<label
+									class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
+								>
+									<input
+										class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 me-2 h-4 w-4 rounded border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800"
+										type="checkbox"
+										name="requiredProduct"
+										value={product.name}
+										bind:group={requiredProducts}
+									/>
+									{product.name}
+								</label>
+							{/if}
 						{/each}
 					</div>
 					<Tooltip>Items which must appear in the cart (the items you want to hack)</Tooltip>
