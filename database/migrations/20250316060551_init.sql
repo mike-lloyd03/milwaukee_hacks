@@ -1,0 +1,22 @@
+CREATE TABLE promotions (
+    promotion_id TEXT PRIMARY KEY,
+    experience_tag TEXT,
+    sub_experience_tag TEXT,
+    long_description TEXT,
+    short_description TEXT,
+    start_date TEXT,
+    end_data TEXT,
+    item_group TEXT,
+    categories JSON,
+    item_ids JSON ,
+    eligibility_min_purchase_amount REAL,
+    eligibility_min_purchase_quantity REAL,
+    max_allowed_reward_amount REAL,
+    max_purchase_quantity REAL,
+    min_purchase_amount REAL,
+    min_purchase_quantity REAL,
+    reward_amount_per_item REAL,
+    reward_amount_per_order REAL,
+    reward_fixed_price REAL,
+    reward_percent REAL
+);

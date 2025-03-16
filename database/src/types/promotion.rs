@@ -1,10 +1,12 @@
+use anyhow::Result;
 use serde::Deserialize;
+use sqlx::SqlitePool;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Promotion {
-    pub experience_tag: String,
     pub promotion_id: String,
+    pub experience_tag: String,
     pub sub_experience_tag: String,
     pub description: Description,
     pub eligibility_criteria: Vec<EligibilityCriterion>,
@@ -19,7 +21,7 @@ pub struct Description {
     pub short_desc: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EligibilityCriterion {
     pub item_group: String,
@@ -42,7 +44,7 @@ pub struct Reward {
     pub tiers: Vec<RewardTier>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RewardTier {
     pub max_allowed_reward_amount: Option<f32>,
@@ -53,4 +55,159 @@ pub struct RewardTier {
     pub reward_amount_per_order: Option<f32>,
     pub reward_fixed_price: Option<f32>,
     pub reward_percent: Option<f32>,
+}
+
+#[derive(Debug)]
+pub struct PromotionDB {
+    pub promotion_id: String,
+    pub experience_tag: String,
+    pub sub_experience_tag: String,
+    pub long_description: String,
+    pub short_description: String,
+    pub start_date: String,
+    pub end_data: String,
+    pub item_group: String,
+    pub categories: sqlx::types::Json<Vec<String>>,
+    pub item_ids: sqlx::types::Json<Vec<String>>,
+    pub eligibility_min_purchase_amount: f32,
+    pub eligibility_min_purchase_quantity: Option<f32>,
+    pub max_allowed_reward_amount: Option<f32>,
+    pub max_purchase_quantity: Option<f32>,
+    pub min_purchase_amount: Option<f32>,
+    pub min_purchase_quantity: Option<f32>,
+    pub reward_amount_per_item: Option<f32>,
+    pub reward_amount_per_order: Option<f32>,
+    pub reward_fixed_price: Option<f32>,
+    pub reward_percent: Option<f32>,
+}
+
+impl From<Promotion> for PromotionDB {
+    fn from(from_val: Promotion) -> Self {
+        Self {
+            promotion_id: from_val.promotion_id,
+            experience_tag: from_val.experience_tag,
+            sub_experience_tag: from_val.sub_experience_tag,
+            long_description: from_val.description.long_desc,
+            short_description: from_val.description.short_desc,
+            start_date: from_val.dates.start,
+            end_data: from_val.dates.end,
+            item_group: from_val
+                .eligibility_criteria
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .item_group,
+            categories: from_val
+                .eligibility_criteria
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .categories
+                .into(),
+            item_ids: from_val
+                .eligibility_criteria
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .item_ids
+                .into(),
+            eligibility_min_purchase_amount: from_val
+                .eligibility_criteria
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .min_purchase_amount,
+            eligibility_min_purchase_quantity: from_val
+                .eligibility_criteria
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .min_purchase_quantity,
+            max_allowed_reward_amount: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .max_allowed_reward_amount,
+            max_purchase_quantity: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .max_purchase_quantity,
+            min_purchase_amount: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .min_purchase_amount,
+            min_purchase_quantity: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .min_purchase_quantity,
+            reward_amount_per_item: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .reward_amount_per_item,
+            reward_amount_per_order: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .reward_amount_per_order,
+            reward_fixed_price: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .reward_fixed_price,
+            reward_percent: from_val
+                .reward
+                .tiers
+                .first()
+                .cloned()
+                .unwrap_or_default()
+                .reward_percent,
+        }
+    }
+}
+
+impl PromotionDB {
+    pub async fn create(self, pool: &SqlitePool) -> Result<()> {
+        sqlx::query!(
+            r#"insert into promotions (promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_data, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+            self.promotion_id,
+            self.experience_tag,
+            self.sub_experience_tag,
+            self.long_description,
+            self.short_description,
+            self.start_date,
+            self.end_data,
+            self.item_group,
+            self.categories,
+            self.item_ids,
+            self.eligibility_min_purchase_amount,
+            self.eligibility_min_purchase_quantity,
+            self.max_allowed_reward_amount,
+            self.max_purchase_quantity,
+            self.min_purchase_amount,
+            self.min_purchase_quantity,
+            self.reward_amount_per_item,
+            self.reward_amount_per_order,
+            self.reward_fixed_price,
+            self.reward_percent,
+        ).execute(pool).await?;
+        Ok(())
+    }
 }
