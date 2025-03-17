@@ -20,3 +20,29 @@ CREATE TABLE promotions (
     reward_fixed_price REAL,
     reward_percent REAL
 );
+
+CREATE TABLE products (
+    item_id TEXT PRIMARY KEY,
+    brand_name Text,
+    product_type Text,
+    product_label Text,
+    canonical_url Text,
+    pricing_value REAL,
+    pricing_original REAL,
+    promotion_tag Text,
+    promotion_type Text,
+    promotion_description Text,
+    promotion_dollar_off REAL,
+    promotion_percentage_off REAL,
+    promotion_savings_center Text,
+    promotion_savings_center_promos Text,
+    promotion_special_buy_savings Text,
+    promotion_special_buy_dollar_off REAL,
+    promotion_special_buy_percentage_off REAL,
+    pricing_message Text,
+    special_buy Text,
+    image_primary_url Text,
+    image_primary_sizes JSON,
+    image_secondary_url Text,
+    image_secondary_sizes JSON
+);

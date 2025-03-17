@@ -83,6 +83,14 @@ pub struct PromotionDB {
 
 impl From<Promotion> for PromotionDB {
     fn from(from_val: Promotion) -> Self {
+        let eligibility_criteria = from_val
+            .eligibility_criteria
+            .first()
+            .cloned()
+            .unwrap_or_default();
+
+        let reward = from_val.reward.tiers.first().cloned().unwrap_or_default();
+
         Self {
             promotion_id: from_val.promotion_id,
             experience_tag: from_val.experience_tag,
@@ -91,100 +99,25 @@ impl From<Promotion> for PromotionDB {
             short_description: from_val.description.short_desc,
             start_date: from_val.dates.start,
             end_data: from_val.dates.end,
-            item_group: from_val
-                .eligibility_criteria
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .item_group,
-            categories: from_val
-                .eligibility_criteria
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .categories
-                .into(),
-            item_ids: from_val
-                .eligibility_criteria
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .item_ids
-                .into(),
-            eligibility_min_purchase_amount: from_val
-                .eligibility_criteria
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .min_purchase_amount,
-            eligibility_min_purchase_quantity: from_val
-                .eligibility_criteria
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .min_purchase_quantity,
-            max_allowed_reward_amount: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .max_allowed_reward_amount,
-            max_purchase_quantity: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .max_purchase_quantity,
-            min_purchase_amount: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .min_purchase_amount,
-            min_purchase_quantity: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .min_purchase_quantity,
-            reward_amount_per_item: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .reward_amount_per_item,
-            reward_amount_per_order: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .reward_amount_per_order,
-            reward_fixed_price: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .reward_fixed_price,
-            reward_percent: from_val
-                .reward
-                .tiers
-                .first()
-                .cloned()
-                .unwrap_or_default()
-                .reward_percent,
+            item_group: eligibility_criteria.item_group,
+            categories: eligibility_criteria.categories.into(),
+            item_ids: eligibility_criteria.item_ids.into(),
+            eligibility_min_purchase_amount: eligibility_criteria.min_purchase_amount,
+            eligibility_min_purchase_quantity: eligibility_criteria.min_purchase_quantity,
+            max_allowed_reward_amount: reward.max_allowed_reward_amount,
+            max_purchase_quantity: reward.max_purchase_quantity,
+            min_purchase_amount: reward.min_purchase_amount,
+            min_purchase_quantity: reward.min_purchase_quantity,
+            reward_amount_per_item: reward.reward_amount_per_item,
+            reward_amount_per_order: reward.reward_amount_per_order,
+            reward_fixed_price: reward.reward_fixed_price,
+            reward_percent: reward.reward_percent,
         }
     }
 }
 
 impl PromotionDB {
-    pub async fn create(self, pool: &SqlitePool) -> Result<()> {
+    pub async fn create(&self, pool: &SqlitePool) -> Result<()> {
         sqlx::query!(
             r#"insert into promotions (promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_data, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
             self.promotion_id,

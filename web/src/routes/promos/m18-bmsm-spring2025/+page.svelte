@@ -1,18 +1,28 @@
 <script lang="ts">
 	import { bmsm, Cart } from '$lib/pkg/algorithm';
-	import { getProducts, formatCurrency } from '$lib/utils';
+	import { formatCurrency } from '$lib/utils';
 	import { P, Card, NumberInput, Label, Heading, Button, Tooltip, Input } from 'flowbite-svelte';
+
+	import type { PageData } from './$types';
+	import type { ProductDB } from '$lib/dbTypes';
+
+	let { data }: { data: PageData } = $props();
 
 	let cartSize = $state(4);
 	let minTotal = $state(1000);
 	let requiredProducts: string[] = $state([]);
+	let submittedRequiredProducts: string[] = $state([]);
 	let carts: Cart[] = $state([]);
-	let products = getProducts('m18BmsmSpring2025');
+	let products = data.products;
 	let productsFilter = $state('');
 
 	function getCarts(event: MouseEvent) {
 		event.preventDefault();
-		const allCarts = bmsm(products, cartSize, minTotal, requiredProducts);
+		submittedRequiredProducts = requiredProducts;
+		const productData = data.products.map((p: ProductDB) => {
+			return { name: p.product_label, price: p.pricing_value };
+		});
+		const allCarts = bmsm(productData, cartSize, minTotal, submittedRequiredProducts);
 		carts = allCarts.slice(0, 10);
 	}
 
@@ -55,6 +65,10 @@
 		}
 	}
 
+	function rowDisabled(product_label: string): boolean {
+		return !requiredProducts.includes(product_label) && requiredProducts.length >= cartSize;
+	}
+
 	function calculatePromoPrice(cartTotal: number, productPrice: number): string {
 		const promoPrice = (1 - discountAmount(cartTotal) / cartTotal) * productPrice;
 		return formatCurrency(promoPrice);
@@ -63,7 +77,7 @@
 
 <div class="space-y-4 text-center">
 	<div class="flex flex-col justify-center gap-4 md:flex-row">
-		<Card>
+		<Card size="md">
 			<Heading tag="h5">Options</Heading>
 			<div class="my-4 flex flex-col gap-4">
 				<Label>
@@ -72,19 +86,24 @@
 					<div
 						class="flex h-64 flex-col overflow-y-auto rounded-md border border-gray-300 p-2 dark:border-gray-500"
 					>
-						{#each products as product (product.name)}
-							{#if product.name.toLowerCase().includes(productsFilter.toLowerCase())}
+						{#each products as product (product.product_label)}
+							{#if product.product_label.toLowerCase().includes(productsFilter.toLowerCase())}
 								<label
-									class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
+									class="flex items-center py-2 text-sm font-medium {rowDisabled(
+										product.product_label
+									)
+										? 'text-gray-500 dark:text-gray-600'
+										: 'text-gray-900 dark:text-gray-300'} "
 								>
 									<input
 										class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 me-2 h-4 w-4 rounded border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800"
 										type="checkbox"
 										name="requiredProduct"
-										value={product.name}
+										value={product.product_label}
 										bind:group={requiredProducts}
+										disabled={rowDisabled(product.product_label)}
 									/>
-									{product.name}
+									{product.product_label}
 								</label>
 							{/if}
 						{/each}
@@ -108,7 +127,7 @@
 			</div>
 		</Card>
 
-		<Card>
+		<Card size="md">
 			<Heading tag="h5">Possible Carts</Heading>
 			<div class="my-4 space-y-2">
 				{#if carts.length > 0}
@@ -116,15 +135,19 @@
 						<div class="rounded-md border border-gray-300 p-2 dark:border-gray-500">
 							<Heading tag="h6">Option {currentCart + 1}</Heading>
 							{#each carts[currentCart].items as item (item)}
-								<div class="flex justify-between">
-									<P color={requiredProducts.includes(item.name) ? 'text-red-500' : undefined}>
+								<div class="flex items-center justify-between py-2">
+									<P
+										color={submittedRequiredProducts.includes(item.name)
+											? 'text-red-500'
+											: undefined}
+									>
 										{item.name}
 									</P>
 									<P>{formatCurrency(item.price)}</P>
 								</div>
 							{/each}
 							<hr />
-							<div class="flex justify-between">
+							<div class="flex justify-between py-2">
 								<P>Cart Total</P>
 								<P>{formatCurrency(carts[currentCart].total)}</P>
 							</div>
@@ -134,9 +157,9 @@
 						</div>
 						<div>
 							<Heading tag="h6">Estimated Price After Promo</Heading>
-							{#each carts[currentCart].items as item}
+							{#each carts[currentCart].items as item (item)}
 								<div class="flex justify-between">
-									{#if requiredProducts.includes(item.name)}
+									{#if submittedRequiredProducts.includes(item.name)}
 										<P>{item.name}</P>
 										<P>{calculatePromoPrice(carts[currentCart].total, item.price)}</P>
 									{/if}
