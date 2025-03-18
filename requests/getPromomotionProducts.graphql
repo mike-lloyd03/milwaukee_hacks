@@ -1,0 +1,61 @@
+query promotionProducts($itemId: String!, $storeId: String, $pageSize: Int, $cartLineItems: [CartLineItemInput!], $loyaltyMembershipInput: LoyaltyMembershipInput) {
+  promotionProducts(
+    itemId: $itemId
+    storeId: $storeId
+    pageSize: $pageSize
+    cartLineItems: $cartLineItems
+    loyaltyMembershipInput: $loyaltyMembershipInput
+  ) {
+    promotions {
+      experienceTag
+      promotionId
+      subExperienceTag
+      description {
+        longDesc
+        shortDesc
+        __typename
+      }
+      eligibilityCriteria {
+        itemGroup
+        categories {
+          categoryId
+          name
+          maxPurchaseQuantity
+          nvalues
+          itemIds
+          __typename
+        }
+        itemIds
+        minPurchaseAmount
+        minPurchaseQuantity
+        searchReport {
+          pageSize
+          startIndex
+          totalProducts
+          __typename
+        }
+        __typename
+      }
+      dates {
+        end
+        start
+        __typename
+      }
+      reward {
+        tiers {
+          maxAllowedRewardAmount
+          maxPurchaseQuantity
+          minPurchaseAmount
+          minPurchaseQuantity
+          rewardAmountPerItem
+          rewardAmountPerOrder
+          rewardFixedPrice
+          rewardPercent
+          __typename
+        }
+        __typename
+      }
+    }
+    __typename
+  }
+}
