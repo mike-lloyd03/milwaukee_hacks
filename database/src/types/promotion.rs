@@ -119,7 +119,53 @@ impl From<Promotion> for PromotionDB {
 impl PromotionDB {
     pub async fn create(&self, pool: &SqlitePool) -> Result<()> {
         sqlx::query!(
-            r#"insert into promotions (promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_data, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+            r#"insert into promotions (
+                promotion_id,
+                experience_tag,
+                sub_experience_tag,
+                long_description,
+                short_description,
+                start_date,
+                end_data,
+                item_group,
+                categories,
+                item_ids,
+                eligibility_min_purchase_amount,
+                eligibility_min_purchase_quantity,
+                max_allowed_reward_amount,
+                max_purchase_quantity,
+                min_purchase_amount,
+                min_purchase_quantity,
+                reward_amount_per_item,
+                reward_amount_per_order,
+                reward_fixed_price,
+                reward_percent
+            )
+            values
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+            on conflict (promotion_id)
+            do update set
+                experience_tag = $2,
+                sub_experience_tag = $3,
+                long_description = $4,
+                short_description = $5,
+                start_date = $6,
+                end_data = $7,
+                item_group = $8,
+                categories = $9,
+                item_ids = $10,
+                eligibility_min_purchase_amount = $11,
+                eligibility_min_purchase_quantity = $12,
+                max_allowed_reward_amount = $13,
+                max_purchase_quantity = $14,
+                min_purchase_amount = $15,
+                min_purchase_quantity = $16,
+                reward_amount_per_item = $17,
+                reward_amount_per_order = $18,
+                reward_fixed_price = $19,
+                reward_percent = $20
+            where promotion_id = $1
+            "#,
             self.promotion_id,
             self.experience_tag,
             self.sub_experience_tag,
@@ -140,7 +186,9 @@ impl PromotionDB {
             self.reward_amount_per_order,
             self.reward_fixed_price,
             self.reward_percent,
-        ).execute(pool).await?;
+        )
+        .execute(pool)
+        .await?;
         Ok(())
     }
 }

@@ -135,7 +135,58 @@ impl From<Product> for ProductDB {
 impl ProductDB {
     pub async fn create(&self, pool: &SqlitePool) -> Result<()> {
         sqlx::query!(
-            r#"insert into products (item_id, brand_name, product_type, product_label, canonical_url, pricing_value, pricing_original, promotion_tag, promotion_type, promotion_description, promotion_dollar_off, promotion_percentage_off, promotion_savings_center, promotion_savings_center_promos, promotion_special_buy_savings, promotion_special_buy_dollar_off, promotion_special_buy_percentage_off, pricing_message, special_buy, image_primary_url, image_primary_sizes, image_secondary_url, image_secondary_sizes) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"#,
+            r#"insert into products (
+                item_id,
+                brand_name,
+                product_type,
+                product_label,
+                canonical_url,
+                pricing_value,
+                pricing_original,
+                promotion_tag,
+                promotion_type,
+                promotion_description,
+                promotion_dollar_off,
+                promotion_percentage_off,
+                promotion_savings_center,
+                promotion_savings_center_promos,
+                promotion_special_buy_savings,
+                promotion_special_buy_dollar_off,
+                promotion_special_buy_percentage_off,
+                pricing_message,
+                special_buy,
+                image_primary_url,
+                image_primary_sizes,
+                image_secondary_url,
+                image_secondary_sizes
+            ) values 
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+            on conflict (item_id)
+            do update set
+                brand_name = $2,
+                product_type = $3,
+                product_label = $4,
+                canonical_url = $5,
+                pricing_value = $6,
+                pricing_original = $7,
+                promotion_tag = $8,
+                promotion_type = $9,
+                promotion_description = $10,
+                promotion_dollar_off = $11,
+                promotion_percentage_off = $12,
+                promotion_savings_center = $13,
+                promotion_savings_center_promos = $14,
+                promotion_special_buy_savings = $15,
+                promotion_special_buy_dollar_off = $16,
+                promotion_special_buy_percentage_off = $17,
+                pricing_message = $18,
+                special_buy = $19,
+                image_primary_url = $20,
+                image_primary_sizes = $21,
+                image_secondary_url = $22,
+                image_secondary_sizes = $23
+            where item_id = $1
+            "#,
             self.item_id,
             self.brand_name,
             self.product_type,
