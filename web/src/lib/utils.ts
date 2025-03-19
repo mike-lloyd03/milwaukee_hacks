@@ -1,5 +1,6 @@
 import productsRaw from "$lib/products.json";
 import { type Product } from "$lib/types";
+import type { ProductDB } from "./dbTypes";
 
 // Returns the products available in the specified promo
 export function getProducts(promo: string): Product[] {
@@ -14,4 +15,16 @@ export function formatCurrency(value: number) {
 		trailingZeroDisplay: "stripIfInteger",
 	});
 	return formatter.format(value);
+}
+export function simplifyName(product: ProductDB): string {
+	const removeStr = ["18V", "Lithium-Ion", "Cordless"];
+	let newName = product.product_label;
+	for (const s of removeStr) {
+		newName = newName.replaceAll(s, "");
+	}
+
+	if (newName.includes("FUEL")) {
+		newName = newName.replace("Brushless", "");
+	}
+	return newName;
 }

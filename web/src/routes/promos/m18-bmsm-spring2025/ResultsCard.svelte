@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Cart } from '$lib/pkg/algorithm';
-	import { formatCurrency } from '$lib/utils';
+	import { simplifyName, formatCurrency } from '$lib/utils';
 	import { P, Card, Heading, Button } from 'flowbite-svelte';
 
 	interface Props {
@@ -42,7 +42,7 @@
 	}
 </script>
 
-<Card size="md">
+<Card size="xl" class="mx-auto">
 	<Heading tag="h5">Possible Carts</Heading>
 	<div class="my-4 space-y-2">
 		{#if carts.length > 0}

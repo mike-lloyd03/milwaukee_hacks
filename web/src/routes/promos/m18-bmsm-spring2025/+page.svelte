@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Cart } from '$lib/pkg/algorithm';
 	import { P, Heading } from 'flowbite-svelte';
+	import { simplifyName } from '$lib/utils';
 
 	import type { PageData } from './$types';
 	import OptionsCard from './OptionsCard.svelte';
@@ -10,14 +11,18 @@
 
 	let requiredProducts: string[] = $state([]);
 	let carts: Cart[] = $state([]);
-	let products = data.products;
+	let products = data.products.map((p) => {
+		p.product_label = simplifyName(p);
+		return p;
+	});
 </script>
 
 <div class="space-y-4 text-center">
-	<div class="flex flex-col justify-center gap-4 md:flex-row">
+	<div class="flex flex-col justify-center gap-4">
 		<OptionsCard {products} bind:carts bind:requiredProducts />
 		<ResultsCard {carts} {requiredProducts} />
 	</div>
+
 	<div class="space-y-2">
 		<Heading tag="h5">How This Works</Heading>
 		<P>
