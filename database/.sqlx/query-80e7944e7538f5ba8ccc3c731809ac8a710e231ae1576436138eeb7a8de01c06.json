@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into promotions (\n                promotion_id,\n                experience_tag,\n                sub_experience_tag,\n                long_description,\n                short_description,\n                start_date,\n                end_data,\n                item_group,\n                categories,\n                item_ids,\n                eligibility_min_purchase_amount,\n                eligibility_min_purchase_quantity,\n                max_allowed_reward_amount,\n                max_purchase_quantity,\n                min_purchase_amount,\n                min_purchase_quantity,\n                reward_amount_per_item,\n                reward_amount_per_order,\n                reward_fixed_price,\n                reward_percent\n            )\n            values\n            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)\n            on conflict (promotion_id)\n            do update set\n                experience_tag = $2,\n                sub_experience_tag = $3,\n                long_description = $4,\n                short_description = $5,\n                start_date = $6,\n                end_data = $7,\n                item_group = $8,\n                categories = $9,\n                item_ids = $10,\n                eligibility_min_purchase_amount = $11,\n                eligibility_min_purchase_quantity = $12,\n                max_allowed_reward_amount = $13,\n                max_purchase_quantity = $14,\n                min_purchase_amount = $15,\n                min_purchase_quantity = $16,\n                reward_amount_per_item = $17,\n                reward_amount_per_order = $18,\n                reward_fixed_price = $19,\n                reward_percent = $20\n            where promotion_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 20
+    },
+    "nullable": []
+  },
+  "hash": "80e7944e7538f5ba8ccc3c731809ac8a710e231ae1576436138eeb7a8de01c06"
+}
