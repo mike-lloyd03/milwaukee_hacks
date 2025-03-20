@@ -88,7 +88,8 @@
 										<img src={product.image_primary_url.replace('<SIZE>', '65')} alt="tool" />
 										<a
 											href={`https://www.homedepot.com${product.canonical_url}`}
-											class="mx-2 hover:underline">{product.product_label}</a
+											class="mx-2 hover:underline"
+											target="_blank">{product.product_label}</a
 										>
 									</div>
 									<div class="m-0 md:mr-4">
