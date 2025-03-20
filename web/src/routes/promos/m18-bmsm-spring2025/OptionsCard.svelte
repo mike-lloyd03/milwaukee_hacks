@@ -67,7 +67,7 @@
 			>
 				{#each products as product (product.product_label)}
 					{#if product.product_label.toLowerCase().includes(productsFilter.toLowerCase())}
-						<div class="my-2 rounded-md bg-gray-200 p-1 dark:bg-gray-700">
+						<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
 							<label
 								class="flex items-center py-2 text-sm font-medium {rowDisabled(
 									product.product_label
@@ -96,9 +96,7 @@
 											target="_blank">{product.product_label}</a
 										>
 									</div>
-									<div class="m-0 md:mr-4">
-										{formatCurrency(product.pricing_value)}
-									</div>
+									{formatCurrency(product.pricing_value)}
 								</div>
 							</label>
 						</div>
