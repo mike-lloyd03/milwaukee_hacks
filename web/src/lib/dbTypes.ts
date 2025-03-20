@@ -23,3 +23,26 @@ export interface ProductDB {
 	image_secondary_url: string;
 	image_secondary_sizes: string[];
 }
+
+export interface PromotionDB {
+	promotion_id: string;
+	experience_tag: string;
+	sub_experience_tag: string;
+	long_description: string;
+	short_description: string;
+	start_date: string;
+	end_data: string;
+	item_group: string;
+	categories: string; // JSON string of string[]
+	item_ids: string; // JSON string of string[]
+	eligibility_min_purchase_amount: number;
+	eligibility_min_purchase_quantity?: number;
+	max_allowed_reward_amount?: number;
+	max_purchase_quantity?: number;
+	min_purchase_amount?: number;
+	min_purchase_quantity?: number;
+	reward_amount_per_item?: number;
+	reward_amount_per_order?: number;
+	reward_fixed_price?: number;
+	reward_percent?: number;
+}
