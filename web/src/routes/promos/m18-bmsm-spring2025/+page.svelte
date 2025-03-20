@@ -1,157 +1,28 @@
 <script lang="ts">
-	import { bmsm, Cart } from '$lib/pkg/algorithm';
-	import { getProducts, formatCurrency } from '$lib/utils';
-	import { P, Card, NumberInput, Label, Heading, Button, Tooltip, Input } from 'flowbite-svelte';
+	import { Cart } from '$lib/pkg/algorithm';
+	import { P, Heading } from 'flowbite-svelte';
+	import { simplifyName } from '$lib/utils';
 
-	let cartSize = $state(4);
-	let minTotal = $state(1000);
+	import type { PageData } from './$types';
+	import OptionsCard from './OptionsCard.svelte';
+	import ResultsCard from './ResultsCard.svelte';
+
+	let { data }: { data: PageData } = $props();
+
 	let requiredProducts: string[] = $state([]);
 	let carts: Cart[] = $state([]);
-	let products = getProducts('m18BmsmSpring2025');
-	let productsFilter = $state('');
-
-	function getCarts(event: MouseEvent) {
-		event.preventDefault();
-		const allCarts = bmsm(products, cartSize, minTotal, requiredProducts);
-		carts = allCarts.slice(0, 10);
-	}
-
-	let currentCart = $state(0);
-	function iterateCart(i: number) {
-		if (currentCart + i > carts.length - 1) {
-			currentCart = 0;
-		} else if (currentCart + i < 0) {
-			currentCart = carts.length - 1;
-		} else {
-			currentCart += i;
-		}
-	}
-
-	function cartSizeRange() {
-		if (cartSize < 2) {
-			cartSize = 2;
-		} else if (cartSize > 6) {
-			cartSize = 6;
-		}
-	}
-	function minTotalRange() {
-		if (minTotal < 100) {
-			minTotal = 100;
-		} else if (minTotal > 10000) {
-			minTotal = 10000;
-		}
-	}
-	function discountAmount(cartTotal: number): number {
-		if (cartTotal < 350) {
-			return 0;
-		} else if (cartTotal < 600) {
-			return 80;
-		} else if (cartTotal < 800) {
-			return 180;
-		} else if (cartTotal < 1000) {
-			return 280;
-		} else {
-			return 400;
-		}
-	}
-
-	function calculatePromoPrice(cartTotal: number, productPrice: number): string {
-		const promoPrice = (1 - discountAmount(cartTotal) / cartTotal) * productPrice;
-		return formatCurrency(promoPrice);
-	}
+	let products = data.products.map((p) => {
+		p.product_label = simplifyName(p);
+		return p;
+	});
 </script>
 
 <div class="space-y-4 text-center">
-	<div class="flex flex-col justify-center gap-4 md:flex-row">
-		<Card>
-			<Heading tag="h5">Options</Heading>
-			<div class="my-4 flex flex-col gap-4">
-				<Label>
-					Required Products
-					<Input class="mb-1" bind:value={productsFilter} placeholder="Search" />
-					<div
-						class="flex h-64 flex-col overflow-y-auto rounded-md border border-gray-300 p-2 dark:border-gray-500"
-					>
-						{#each products as product (product.name)}
-							{#if product.name.toLowerCase().includes(productsFilter.toLowerCase())}
-								<label
-									class="flex items-center text-sm font-medium text-gray-900 dark:text-gray-300"
-								>
-									<input
-										class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 me-2 h-4 w-4 rounded border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800"
-										type="checkbox"
-										name="requiredProduct"
-										value={product.name}
-										bind:group={requiredProducts}
-									/>
-									{product.name}
-								</label>
-							{/if}
-						{/each}
-					</div>
-					<Tooltip>Items which must appear in the cart (the items you want to hack)</Tooltip>
-				</Label>
-
-				<Label>
-					Max Cart Size
-					<NumberInput onchange={cartSizeRange} bind:value={cartSize} />
-					<Tooltip>The maximum number of items in the cart. 4-5 is usually a good value.</Tooltip>
-				</Label>
-
-				<Label>
-					Minimum Cart Total
-					<NumberInput prefix="$" onchange={minTotalRange} bind:value={minTotal} />
-					<Tooltip>The minimum total cost of the items in the cart</Tooltip>
-				</Label>
-
-				<Button color="red" onclick={getCarts}>Calculate</Button>
-			</div>
-		</Card>
-
-		<Card>
-			<Heading tag="h5">Possible Carts</Heading>
-			<div class="my-4 space-y-2">
-				{#if carts.length > 0}
-					{#key currentCart}
-						<div class="rounded-md border border-gray-300 p-2 dark:border-gray-500">
-							<Heading tag="h6">Option {currentCart + 1}</Heading>
-							{#each carts[currentCart].items as item (item)}
-								<div class="flex justify-between">
-									<P color={requiredProducts.includes(item.name) ? 'text-red-500' : undefined}>
-										{item.name}
-									</P>
-									<P>{formatCurrency(item.price)}</P>
-								</div>
-							{/each}
-							<hr />
-							<div class="flex justify-between">
-								<P>Cart Total</P>
-								<P>{formatCurrency(carts[currentCart].total)}</P>
-							</div>
-							<div>
-								<P></P>
-							</div>
-						</div>
-						<div>
-							<Heading tag="h6">Estimated Price After Promo</Heading>
-							{#each carts[currentCart].items as item}
-								<div class="flex justify-between">
-									{#if requiredProducts.includes(item.name)}
-										<P>{item.name}</P>
-										<P>{calculatePromoPrice(carts[currentCart].total, item.price)}</P>
-									{/if}
-								</div>
-							{/each}
-						</div>
-						<Button color="alternative" onclick={() => iterateCart(-1)}>Prev</Button>
-						<Button color="alternative" onclick={() => iterateCart(1)}>Next</Button>
-					{/key}
-				{:else}
-					<div>Awaiting Input</div>
-				{/if}
-			</div>
-		</Card>
+	<div class="flex flex-col justify-center gap-4">
+		<OptionsCard {products} bind:carts bind:requiredProducts />
+		<ResultsCard {carts} {requiredProducts} />
 	</div>
+
 	<div class="space-y-2">
 		<Heading tag="h5">How This Works</Heading>
 		<P>

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd /database
+./database
+
+cd /app
+node build

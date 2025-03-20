@@ -1,10 +1,16 @@
+import type { Database } from "better-sqlite3";
+import type { ProductDB } from "$lib/dbTypes";
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
-		// interface PageData {}
+		interface Locals {
+			db: Database;
+		}
+		interface PageData {
+			products?: ProductDB[];
+		}
 		// interface PageState {}
 		// interface Platform {}
 	}
