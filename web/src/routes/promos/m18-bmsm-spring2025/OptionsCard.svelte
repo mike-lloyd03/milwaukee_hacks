@@ -61,7 +61,7 @@
 	<Heading tag="h5">Select Products</Heading>
 	<div class="my-4 flex flex-col gap-4">
 		<div>
-			<Input class="mx-auto mb-4 w-96" bind:value={productsFilter} placeholder="Search" />
+			<Input class="mx-auto mb-4 max-w-96" bind:value={productsFilter} placeholder="Search" />
 			<div
 				class="flex h-96 flex-col overflow-y-auto rounded-md border border-gray-300 p-2 dark:border-gray-500"
 			>

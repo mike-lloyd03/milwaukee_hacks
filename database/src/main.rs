@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::SqlitePool;
+use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 use types::{ProductDB, PromotionDB};
 
 mod config;
@@ -9,7 +9,11 @@ mod types;
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = config::Config::load("config.toml")?;
-    let pool = SqlitePool::connect(&config.db_path).await?;
+    let options = SqliteConnectOptions::new()
+        .filename(&config.db_path)
+        .create_if_missing(true);
+    let pool = SqlitePool::connect_with(options).await?;
+    sqlx::migrate!("./migrations").run(&pool).await?;
 
     for promo in config.promos {
         println!("Loading promo {promo}");
