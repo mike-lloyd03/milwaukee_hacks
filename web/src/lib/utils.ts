@@ -17,7 +17,7 @@ export function formatCurrency(value: number) {
 	return formatter.format(value);
 }
 export function simplifyName(product: ProductDB): string {
-	const removeStr = ["18V", "Lithium-Ion", "Cordless"];
+	const removeStr = ["18V", "Lithium-Ion", "Cordless", "12V", "12-Volt"];
 	let newName = product.product_label;
 	for (const s of removeStr) {
 		newName = newName.replaceAll(s, "");

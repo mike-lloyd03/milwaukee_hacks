@@ -17,7 +17,7 @@
 	});
 </script>
 
-<div class="space-y-4 text-center">
+<div class="space-y-4">
 	<div class="flex flex-col justify-center gap-4">
 		<OptionsCard {products} bind:carts bind:requiredProducts />
 		<ResultsCard {carts} {requiredProducts} />
@@ -26,19 +26,18 @@
 	<div class="space-y-2">
 		<Heading tag="h5">How This Works</Heading>
 		<P>
-			This promo offers different dollar values off the total price once different cart total values
-			are met. If your cart totals $350 or more, you get $80 off. $600 or more, you'll get $180 off.
-			To maximize savings on this deal, put at least $1000 in your cart and receive $400 off the
-			total.
+			This promo offers different dollar values off the total price once a certain number of items
+			have been added to the cart. Buy two items, get $100 back. Buy three, $200 back.
 		</P>
 		<P>
-			The hacking part of this is the same as any other hack at Home Depot: return the items you
-			don't want. You'll effectively get the tools you want for about 40% off.
+			So to hack this, add the item you want to the cart and add two more of the cheapest items on
+			the promo. Return the items you don't want.
 		</P>
 		<P>
 			In the form above, choose the tool (or tools) you want from the "Required Products" field and
-			choose "Calculate". You will be presented with different cart options you can buy at Home
-			Depot to get the maximum savings amount on the tool you want.
+			choose "Calculate". If an item is not in stock, you can exclude it from your cart by toggling
+			the slider above the product list. You will be presented with different cart options you can
+			buy at Home Depot to get the maximum savings amount on the tool you want.
 		</P>
 	</div>
 </div>

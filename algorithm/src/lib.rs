@@ -7,6 +7,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 pub fn bmsm(
     products: JsValue,
+    min_cart_size: usize,
     max_cart_size: usize,
     min_total: f32,
     required_products: Vec<String>,
@@ -15,7 +16,7 @@ pub fn bmsm(
 
     let mut combinations: Vec<Vec<&Product>> = vec![];
 
-    for i in 2..=max_cart_size {
+    for i in min_cart_size..=max_cart_size {
         combinations.append(&mut products.iter().combinations_with_replacement(i).collect())
     }
 

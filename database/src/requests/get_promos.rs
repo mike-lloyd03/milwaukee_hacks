@@ -3,13 +3,10 @@ use serde::Deserialize;
 
 use crate::types::Promotion;
 
-const QUERY: &str = r#"query promotionProducts($itemId: String!, $storeId: String, $pageSize: Int, $cartLineItems: [CartLineItemInput!], $loyaltyMembershipInput: LoyaltyMembershipInput) {
+const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int) {
   promotionProducts(
     itemId: $itemId
-    storeId: $storeId
     pageSize: $pageSize
-    cartLineItems: $cartLineItems
-    loyaltyMembershipInput: $loyaltyMembershipInput
   ) {
     promotions {
       experienceTag
@@ -85,9 +82,7 @@ struct Promotions {
 pub fn get_promo(promo_id: u32) -> Result<Promotion> {
     let variables = serde_json::json!({
             "itemId":promo_id.to_string(),
-            "loyaltyMembershipInput": null,
             "pageSize": 48,
-            "storeId": null,
     });
 
     let body = serde_json::json!({

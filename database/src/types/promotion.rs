@@ -27,7 +27,7 @@ pub struct EligibilityCriterion {
     pub item_group: String,
     pub categories: Vec<String>,
     pub item_ids: Vec<String>,
-    pub min_purchase_amount: f32,
+    pub min_purchase_amount: Option<f32>,
     pub min_purchase_quantity: Option<f32>,
 }
 
@@ -69,7 +69,7 @@ pub struct PromotionDB {
     pub item_group: String,
     pub categories: sqlx::types::Json<Vec<String>>,
     pub item_ids: sqlx::types::Json<Vec<String>>,
-    pub eligibility_min_purchase_amount: f32,
+    pub eligibility_min_purchase_amount: Option<f32>,
     pub eligibility_min_purchase_quantity: Option<f32>,
     pub max_allowed_reward_amount: Option<f32>,
     pub max_purchase_quantity: Option<f32>,

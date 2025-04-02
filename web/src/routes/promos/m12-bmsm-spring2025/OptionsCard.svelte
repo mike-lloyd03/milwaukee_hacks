@@ -9,7 +9,8 @@
 		Button,
 		Tooltip,
 		Input,
-		Modal
+		Modal,
+		Toggle
 	} from 'flowbite-svelte';
 	import { formatCurrency } from '$lib/utils';
 
@@ -22,13 +23,18 @@
 	let { products, requiredProducts = $bindable(), carts = $bindable() }: Props = $props();
 
 	let productsFilter = $state('');
-	let cartSize = $state(4);
+	let cartSize = $state(3);
 	let minTotal = $state(1000);
 	let selectedProducts: string[] = $state([]);
+	let excludedProducts: string[] = $state([]);
 	let optionsOpen = $state(false);
+	let selectProductsMode = $state(true);
 
-	function rowDisabled(product_label: string): boolean {
-		return !selectedProducts.includes(product_label) && selectedProducts.length >= cartSize;
+	function rowDisabled(productLabel: string): boolean {
+		return (
+			(!selectedProducts.includes(productLabel) && selectedProducts.length >= cartSize) ||
+			excludedProducts.includes(productLabel)
+		);
 	}
 
 	function cartSizeRange() {
@@ -49,10 +55,12 @@
 	function getCarts(event: MouseEvent) {
 		event.preventDefault();
 		requiredProducts = selectedProducts;
-		const productData = products.map((p: ProductDB) => {
-			return { name: p.product_label, price: p.pricing_value };
-		});
-		const allCarts = bmsm(productData, 2, cartSize, minTotal, requiredProducts);
+		const productData = products
+			.filter((p) => !excludedProducts.includes(p.product_label))
+			.map((p: ProductDB) => {
+				return { name: p.product_label, price: p.pricing_value };
+			});
+		const allCarts = bmsm(productData, 3, 3, 0, requiredProducts);
 		carts = allCarts.slice(0, 10);
 	}
 </script>
@@ -75,14 +83,27 @@
 									? 'text-gray-500 dark:text-gray-600'
 									: 'text-gray-900 dark:text-gray-300'} "
 							>
-								<input
-									class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 me-2 h-4 w-4 rounded border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800"
-									type="checkbox"
-									name="requiredProduct"
-									value={product.product_label}
-									bind:group={selectedProducts}
-									disabled={rowDisabled(product.product_label)}
-								/>
+								{#if selectProductsMode}
+									<input
+										class="text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 me-2 h-4 w-4 rounded border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800"
+										type="checkbox"
+										name="requiredProduct"
+										value={product.product_label}
+										bind:group={selectedProducts}
+										disabled={rowDisabled(product.product_label) ||
+											excludedProducts.includes(product.product_label)}
+									/>
+								{:else}
+									<input
+										class="peer me-2 h-4 w-4 appearance-none rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800 dark:focus:ring-red-600"
+										type="checkbox"
+										name="excludedProduct"
+										value={product.product_label}
+										bind:group={excludedProducts}
+										disabled={selectedProducts.includes(product.product_label)}
+									/>
+								{/if}
+
 								<div class="flex w-full items-center justify-between">
 									<div class="flex items-center">
 										<img
@@ -103,10 +124,19 @@
 					{/if}
 				{/each}
 			</div>
+			<div class="my-2">
+				<div class="flex gap-2">
+					Excluded Products
+					<Toggle bind:checked={selectProductsMode} />
+					<Tooltip placement="bottom"
+						>Toggle between selecting products to include in the cart and to exclude</Tooltip
+					>
+					Selected Products
+				</div>
+			</div>
 		</div>
 
 		<div class="mx-auto flex max-w-md gap-2">
-			<Button color="alternative" onclick={() => (optionsOpen = true)}>Options</Button>
 			<Button color="red" onclick={getCarts}>Calculate</Button>
 		</div>
 	</div>
