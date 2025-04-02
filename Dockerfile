@@ -48,4 +48,6 @@ ENV ORIGIN=http://localhost:3000
 
 EXPOSE 3000
 
+VOLUME ["/app/data/"]
+
 CMD ["/run_app"]
