@@ -1,30 +1,32 @@
 <script lang="ts">
 	import { bmsm, Cart } from '$lib/pkg/algorithm';
 	import type { ProductDB } from '$lib/dbTypes';
-	import {
-		Card,
-		NumberInput,
-		Label,
-		Heading,
-		Button,
-		Tooltip,
-		Input,
-		Modal,
-		Toggle
-	} from 'flowbite-svelte';
+	import { Card, Heading, Button, Tooltip, Input, Modal, Toggle } from 'flowbite-svelte';
 	import { formatCurrency } from '$lib/utils';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		products: ProductDB[];
 		requiredProducts: string[];
 		carts: Cart[];
+		minCartSize: number;
+		maxCartSize: number;
+		minCartTotal?: number;
+		options?: Snippet;
 	}
 
-	let { products, requiredProducts = $bindable(), carts = $bindable() }: Props = $props();
+	let {
+		products,
+		requiredProducts = $bindable(),
+		carts = $bindable(),
+		minCartSize,
+		maxCartSize = $bindable(),
+		minCartTotal = $bindable(),
+		options
+	}: Props = $props();
 
 	let productsFilter = $state('');
 	let cartSize = $state(3);
-	let minTotal = $state(1000);
 	let selectedProducts: string[] = $state([]);
 	let excludedProducts: string[] = $state([]);
 	let optionsOpen = $state(false);
@@ -37,21 +39,6 @@
 		);
 	}
 
-	function cartSizeRange() {
-		if (cartSize < 2) {
-			cartSize = 2;
-		} else if (cartSize > 6) {
-			cartSize = 6;
-		}
-	}
-	function minTotalRange() {
-		if (minTotal < 100) {
-			minTotal = 100;
-		} else if (minTotal > 10000) {
-			minTotal = 10000;
-		}
-	}
-
 	function getCarts(event: MouseEvent) {
 		event.preventDefault();
 		requiredProducts = selectedProducts;
@@ -60,7 +47,13 @@
 			.map((p: ProductDB) => {
 				return { name: p.product_label, price: p.pricing_value };
 			});
-		const allCarts = bmsm(productData, 3, 3, 0, requiredProducts);
+		const allCarts = bmsm(
+			productData,
+			minCartSize,
+			maxCartSize,
+			minCartTotal ?? 0,
+			requiredProducts
+		);
 		carts = allCarts.slice(0, 10);
 	}
 </script>
@@ -137,21 +130,17 @@
 		</div>
 
 		<div class="mx-auto flex max-w-md gap-2">
+			{#if options}
+				<Button color="alternative" onclick={() => (optionsOpen = true)}>Options</Button>
+			{/if}
 			<Button color="red" onclick={getCarts}>Calculate</Button>
 		</div>
 	</div>
 </Card>
 
-<Modal title="Options" bind:open={optionsOpen} autoclose>
-	<Label>
-		Max Cart Size
-		<NumberInput onchange={cartSizeRange} bind:value={cartSize} />
-		<Tooltip>The maximum number of items in the cart. 4-5 is usually a good value.</Tooltip>
-	</Label>
-
-	<Label>
-		Minimum Cart Total
-		<NumberInput prefix="$" onchange={minTotalRange} bind:value={minTotal} />
-		<Tooltip>The minimum total cost of the items in the cart</Tooltip>
-	</Label>
-</Modal>
+{#if options}
+	<Modal title="Options" bind:open={optionsOpen} autoclose>
+		{@render options()}
+		<Button color="alternative">Okay</Button>
+	</Modal>
+{/if}

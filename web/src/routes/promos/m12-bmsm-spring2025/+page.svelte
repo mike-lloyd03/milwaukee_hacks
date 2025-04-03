@@ -4,8 +4,8 @@
 	import { simplifyName } from '$lib/utils';
 
 	import type { PageData } from './$types';
-	import OptionsCard from './OptionsCard.svelte';
-	import ResultsCard from './ResultsCard.svelte';
+	import OptionsCard from '$lib/components/OptionsCard.svelte';
+	import ResultsCard from '$lib/components/ResultsCard.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -15,12 +15,22 @@
 		p.product_label = simplifyName(p);
 		return p;
 	});
+
+	function rewardAmount(cart: Cart): number {
+		if (cart.items.length < 2) {
+			return 0;
+		} else if (cart.items.length == 2) {
+			return 100;
+		} else {
+			return 200;
+		}
+	}
 </script>
 
 <div class="space-y-4">
 	<div class="flex flex-col justify-center gap-4">
-		<OptionsCard {products} bind:carts bind:requiredProducts />
-		<ResultsCard {carts} {requiredProducts} />
+		<OptionsCard {products} bind:carts bind:requiredProducts minCartSize={3} maxCartSize={3} />
+		<ResultsCard {carts} {requiredProducts} {rewardAmount} />
 	</div>
 
 	<div class="space-y-2">
