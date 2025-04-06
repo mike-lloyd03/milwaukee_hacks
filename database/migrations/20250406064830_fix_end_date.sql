@@ -1,5 +1,7 @@
 CREATE TABLE temp_promotions (
     promotion_id TEXT PRIMARY KEY,
+    name TEXT NULL,
+    item_id TEXT NULL,
     experience_tag TEXT,
     sub_experience_tag TEXT,
     long_description TEXT,
@@ -21,8 +23,8 @@ CREATE TABLE temp_promotions (
     reward_percent REAL
 );
 
-INSERT INTO temp_promotions (promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_date, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent)
-SELECT promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_data, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent
+INSERT INTO temp_promotions (promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_date, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent, name, item_id)
+SELECT promotion_id, experience_tag, sub_experience_tag, long_description, short_description, start_date, end_data, item_group, categories, item_ids, eligibility_min_purchase_amount, eligibility_min_purchase_quantity, max_allowed_reward_amount, max_purchase_quantity, min_purchase_amount, min_purchase_quantity, reward_amount_per_item, reward_amount_per_order, reward_fixed_price, reward_percent, name, item_id
 FROM promotions;
 
 DROP TABLE promotions;
