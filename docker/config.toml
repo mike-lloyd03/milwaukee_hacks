@@ -1,2 +1,9 @@
-promos = [320459258, 315442497]
 db_path = "/app/data/data.db"
+
+[[promos]]
+id = 320459258
+name = "M18 Buy More Save More - Spring 2025"
+
+[[promos]]
+id = 315442497
+name = "M12 Buy More Save More - Spring 2025"
