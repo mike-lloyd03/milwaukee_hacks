@@ -2,8 +2,12 @@
 	import { Heading, Listgroup } from 'flowbite-svelte';
 
 	const links = [
-		{ name: 'M18 Buy More Save More - Spring 2025', href: '/promos/m18-bmsm-spring2025' },
-		{ name: 'M12 Buy More Save More - Spring 2025', href: '/promos/m12-bmsm-spring2025' }
+		{ name: 'M18 Buy More Save More - Spring 2025', href: '/promos/2025-q2-m18-bmsm' },
+		{ name: 'M12 Buy More Save More - Spring 2025', href: '/promos/2025-q2-m12-bmsm' },
+		{
+			name: 'Landscaping Buy More Save More - Spring 2025',
+			href: '/promos/2025-q2-landscaping-bmsm'
+		}
 	];
 </script>
 

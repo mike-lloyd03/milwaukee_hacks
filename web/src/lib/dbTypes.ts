@@ -33,7 +33,7 @@ export interface PromotionDB {
 	long_description: string;
 	short_description: string;
 	start_date: string;
-	end_data: string;
+	end_date: string;
 	item_group: string;
 	categories: string; // JSON string of string[]
 	item_ids: string; // JSON string of string[]
