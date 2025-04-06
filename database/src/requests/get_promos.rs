@@ -1,6 +1,7 @@
 use anyhow::{bail, Result};
 use serde::Deserialize;
 
+use crate::config::Promo as ConfigPromo;
 use crate::types::Promotion;
 
 const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int) {
@@ -79,9 +80,9 @@ struct Promotions {
     promotions: Vec<Promotion>,
 }
 
-pub fn get_promo(promo_id: u32) -> Result<Promotion> {
+pub fn get_promo(promo: ConfigPromo) -> Result<Promotion> {
     let variables = serde_json::json!({
-            "itemId":promo_id.to_string(),
+            "itemId":promo.id.to_string(),
             "pageSize": 48,
     });
 
@@ -107,7 +108,11 @@ pub fn get_promo(promo_id: u32) -> Result<Promotion> {
         .take(1)
         .next()
     {
-        Some(p) => Ok(p),
+        Some(mut p) => {
+            p.name = Some(promo.name);
+            p.item_id = Some(promo.id.to_string());
+            Ok(p)
+        }
         None => bail!("Promotion not found"),
     }
 }

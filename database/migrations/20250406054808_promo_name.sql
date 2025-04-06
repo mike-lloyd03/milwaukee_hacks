@@ -1,0 +1,5 @@
+ALTER TABLE promotions
+ADD COLUMN name TEXT NULL;
+
+ALTER TABLE promotions
+ADD COLUMN item_id TEXT NULL;

@@ -5,8 +5,14 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Default)]
 pub struct Config {
-    pub promos: Vec<u32>,
+    pub promos: Vec<Promo>,
     pub db_path: String,
+}
+
+#[derive(Deserialize)]
+pub struct Promo {
+    pub id: u32,
+    pub name: String,
 }
 
 impl Config {

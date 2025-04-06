@@ -6,6 +6,10 @@ use sqlx::SqlitePool;
 #[serde(rename_all = "camelCase")]
 pub struct Promotion {
     pub promotion_id: String,
+    // This field is added
+    pub name: Option<String>,
+    // This field is the itemId used in the GraphQL query for fetching this promo
+    pub item_id: Option<String>,
     pub experience_tag: String,
     pub sub_experience_tag: String,
     pub description: Description,
@@ -60,6 +64,8 @@ pub struct RewardTier {
 #[derive(Debug)]
 pub struct PromotionDB {
     pub promotion_id: String,
+    pub name: Option<String>,
+    pub item_id: Option<String>,
     pub experience_tag: String,
     pub sub_experience_tag: String,
     pub long_description: String,
@@ -93,6 +99,8 @@ impl From<Promotion> for PromotionDB {
 
         Self {
             promotion_id: from_val.promotion_id,
+            name: from_val.name,
+            item_id: from_val.item_id,
             experience_tag: from_val.experience_tag,
             sub_experience_tag: from_val.sub_experience_tag,
             long_description: from_val.description.long_desc,
@@ -121,6 +129,8 @@ impl PromotionDB {
         sqlx::query!(
             r#"insert into promotions (
                 promotion_id,
+                name,
+                item_id,
                 experience_tag,
                 sub_experience_tag,
                 long_description,
@@ -142,31 +152,35 @@ impl PromotionDB {
                 reward_percent
             )
             values
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
             on conflict (promotion_id)
             do update set
-                experience_tag = $2,
-                sub_experience_tag = $3,
-                long_description = $4,
-                short_description = $5,
-                start_date = $6,
-                end_data = $7,
-                item_group = $8,
-                categories = $9,
-                item_ids = $10,
-                eligibility_min_purchase_amount = $11,
-                eligibility_min_purchase_quantity = $12,
-                max_allowed_reward_amount = $13,
-                max_purchase_quantity = $14,
-                min_purchase_amount = $15,
-                min_purchase_quantity = $16,
-                reward_amount_per_item = $17,
-                reward_amount_per_order = $18,
-                reward_fixed_price = $19,
-                reward_percent = $20
+                name = $2,
+                item_id = $3,
+                experience_tag = $4,
+                sub_experience_tag = $5,
+                long_description = $6,
+                short_description = $7,
+                start_date = $8,
+                end_data = $9,
+                item_group = $10,
+                categories = $11,
+                item_ids = $12,
+                eligibility_min_purchase_amount = $13,
+                eligibility_min_purchase_quantity = $14,
+                max_allowed_reward_amount = $15,
+                max_purchase_quantity = $16,
+                min_purchase_amount = $17,
+                min_purchase_quantity = $18,
+                reward_amount_per_item = $19,
+                reward_amount_per_order = $20,
+                reward_fixed_price = $21,
+                reward_percent = $22
             where promotion_id = $1
             "#,
             self.promotion_id,
+            self.name,
+            self.item_id,
             self.experience_tag,
             self.sub_experience_tag,
             self.long_description,

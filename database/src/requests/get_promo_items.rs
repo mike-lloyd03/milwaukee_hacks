@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::Result;
 use serde::Deserialize;
 
 use crate::types::Product;

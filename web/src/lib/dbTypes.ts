@@ -26,6 +26,8 @@ export interface ProductDB {
 
 export interface PromotionDB {
 	promotion_id: string;
+	name: string;
+	item_id: string;
 	experience_tag: string;
 	sub_experience_tag: string;
 	long_description: string;

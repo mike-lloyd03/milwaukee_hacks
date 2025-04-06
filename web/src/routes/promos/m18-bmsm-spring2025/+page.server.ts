@@ -4,8 +4,8 @@ import type { ProductDB, PromotionDB } from "$lib/dbTypes";
 export const load: PageServerLoad = async ({ locals }) => {
 	const db = locals.db;
 	const promo = db
-		.prepare("select * from promotions where promotion_id = ?")
-		.get("488556") as PromotionDB;
+		.prepare("select * from promotions where item_id = ?")
+		.get("320459258") as PromotionDB;
 	const itemIDs: string[] = JSON.parse(promo.item_ids);
 
 	let query = "select * from products where item_id in (";

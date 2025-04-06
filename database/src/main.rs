@@ -16,7 +16,7 @@ async fn main() -> Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     for promo in config.promos {
-        println!("Loading promo {promo}");
+        println!("Loading promo {}", promo.name);
         let promo = requests::get_promo(promo)?;
         let promo_db: PromotionDB = promo.into();
         promo_db.create(&pool).await?;
