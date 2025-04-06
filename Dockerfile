@@ -18,7 +18,7 @@ COPY database /src
 
 RUN apt-get update && apt-get install musl-tools -y
 RUN rustup target add x86_64-unknown-linux-musl
-RUN cargo build --release --target x86_64-unknown-linux-musl
+RUN SQLX_OFFLINE=true cargo build --release --target x86_64-unknown-linux-musl
 
 ###### Final
 FROM node:23-slim

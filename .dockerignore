@@ -1,2 +1,4 @@
 target
 data.db
+database/data.db*
+database/.env
