@@ -41,6 +41,7 @@ COPY docker/run_app /run_app
 COPY database/config.toml /database/
 COPY docker/crontab /etc/cron.d/database-refresh
 RUN chmod 0644 /etc/cron.d/database-refresh; crontab /etc/cron.d/database-refresh
+RUN sed -i 's;"data.db";"/app/data/data.db";' /database/config.toml
 
 RUN pnpm run build
 

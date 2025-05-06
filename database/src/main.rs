@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
         let promo = match requests::get_promo(promo) {
             Ok(p) => p,
             Err(e) => {
-                eprintln!("Warning: {e}");
+                println!("Warning: {e}");
                 continue;
             }
         };
