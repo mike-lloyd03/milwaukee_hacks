@@ -5,11 +5,11 @@
 		{
 			name: 'Landscaping Buy More Save More - Spring 2025',
 			href: '/promos/2025-q2-landscaping-bmsm'
-		},
-		{
-			name: 'Packout Buy More Save More - Summer 2025',
-			href: '/promos/2025-q3-packout-bmsm'
 		}
+		// {
+		// 	name: 'Packout Buy More Save More - Summer 2025',
+		// 	href: '/promos/2025-q3-packout-bmsm'
+		// }
 	];
 
 	const oldPromoLinks = [
