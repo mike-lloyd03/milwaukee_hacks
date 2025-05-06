@@ -18,7 +18,7 @@
 	let requiredProducts: string[] = $state([]);
 	let carts: Cart[] = $state([]);
 	let cartSize = $state(4);
-	let minTotal = $state(1000);
+	let minTotal = $state(499);
 
 	function cartSizeRange() {
 		if (cartSize < 2) {
@@ -36,16 +36,14 @@
 	}
 
 	function rewardAmount(cart: Cart): number {
-		if (cart.total < 350) {
+		if (cart.total < 199) {
 			return 0;
-		} else if (cart.total < 600) {
-			return 80;
-		} else if (cart.total < 800) {
-			return 180;
-		} else if (cart.total < 1000) {
-			return 280;
+		} else if (cart.total < 299) {
+			return 25;
+		} else if (cart.total < 499) {
+			return 70;
 		} else {
-			return 400;
+			return 179;
 		}
 	}
 </script>
@@ -84,8 +82,8 @@
 		<Heading tag="h5">How This Works</Heading>
 		<P>
 			This promo offers different dollar values off the total price once different cart total values
-			are met. If your cart totals $350 or more, you get $80 off. $600 or more, you'll get $180 off.
-			To maximize savings on this deal, put at least $1000 in your cart and receive $400 off the
+			are met. If your cart totals $199 or more, you get $25 off. $299 or more, you'll get $70 off.
+			To maximize savings on this deal, put at least $499 in your cart and receive $179 off the
 			total.
 		</P>
 		<P>

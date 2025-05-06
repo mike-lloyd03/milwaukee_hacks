@@ -10,6 +10,7 @@ declare global {
 		}
 		interface PageData {
 			products?: ProductDB[];
+			promo?: PromotionDB;
 		}
 		// interface PageState {}
 		// interface Platform {}

@@ -6,6 +6,7 @@
 	import type { PageData } from './$types';
 	import OptionsCard from '$lib/components/OptionsCard.svelte';
 	import ResultsCard from '$lib/components/ResultsCard.svelte';
+	import PromoTitle from '$lib/components/PromoTitle.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -30,6 +31,8 @@
 </script>
 
 <div class="space-y-4">
+	<PromoTitle promo={data.promo} />
+
 	<div class="flex flex-col justify-center gap-4">
 		<OptionsCard {products} bind:carts bind:requiredProducts minCartSize={5} maxCartSize={5} />
 		<ResultsCard {carts} {requiredProducts} {rewardAmount} />
@@ -53,4 +56,5 @@
 			buy at Home Depot to get the maximum savings amount on the tool you want.
 		</P>
 	</div>
+	<div>{JSON.stringify(data.promo)}</div>
 </div>

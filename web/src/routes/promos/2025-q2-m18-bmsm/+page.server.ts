@@ -15,6 +15,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const products: ProductDB[] = db.prepare(query).all(itemIDs) as ProductDB[];
 
 	return {
-		products: products,
+		products,
+		promo,
 	};
 };

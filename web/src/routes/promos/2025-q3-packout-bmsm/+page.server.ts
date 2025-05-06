@@ -5,7 +5,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const db = locals.db;
 	const promo = db
 		.prepare("select * from promotions where item_id = ?")
-		.get("315442497") as PromotionDB;
+		.get("330035447") as PromotionDB;
 	const itemIDs: string[] = JSON.parse(promo.item_ids);
 
 	let query = "select * from products where item_id in (";
