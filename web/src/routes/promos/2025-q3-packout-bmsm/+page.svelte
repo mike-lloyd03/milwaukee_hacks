@@ -88,7 +88,7 @@
 		</P>
 		<P>
 			The hacking part of this is the same as any other hack at Home Depot: return the items you
-			don't want. You'll effectively get the tools you want for about 40% off.
+			don't want. You'll effectively get the tools you want but at a hefty discount.
 		</P>
 		<P>
 			In the form above, choose the tool (or tools) you want from the "Required Products" field and
