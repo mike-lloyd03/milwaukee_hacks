@@ -56,5 +56,4 @@
 			buy at Home Depot to get the maximum savings amount on the tool you want.
 		</P>
 	</div>
-	<div>{JSON.stringify(data.promo)}</div>
 </div>
