@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 
 use crate::config::Promo as ConfigPromo;
@@ -98,7 +98,8 @@ pub fn get_promo(promo: ConfigPromo) -> Result<Promotion> {
     .header("content-type", "application/json")
     .send_json(body)?
     .body_mut()
-    .read_json::<Response>()?;
+    .read_json::<Response>()
+    .context("Failed to parse promotionProducts response")?;
 
     match resp
         .data

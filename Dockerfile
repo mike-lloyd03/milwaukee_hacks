@@ -38,7 +38,7 @@ RUN mkdir /app/src/lib/pkg; mkdir /database; apt-get update; apt-get install -y 
 COPY --from=wasm_builder /src/pkg /app/src/lib/pkg
 COPY --from=db_builder /src/target/x86_64-unknown-linux-musl/release/database /database/database
 COPY docker/run_app /run_app
-COPY docker/config.toml /database/
+COPY database/config.toml /database/
 COPY docker/crontab /etc/cron.d/database-refresh
 RUN chmod 0644 /etc/cron.d/database-refresh; crontab /etc/cron.d/database-refresh
 

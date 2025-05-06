@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::Deserialize;
 
 use crate::types::Product;
@@ -104,7 +104,8 @@ pub fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
     .header("content-type", "application/json")
     .send_json(body)?
     .body_mut()
-    .read_json::<Response>()?;
+    .read_json::<Response>()
+    .context("Failed to parse promotionProductsItems response")?;
 
     Ok(resp.data.search_model.products)
 }

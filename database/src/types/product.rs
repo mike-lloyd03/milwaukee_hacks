@@ -16,7 +16,7 @@ pub struct Product {
 #[serde(rename_all = "camelCase")]
 pub struct Identifiers {
     pub item_id: String,
-    pub brand_name: String,
+    pub brand_name: Option<String>,
     pub product_type: String,
     pub product_label: String,
     pub canonical_url: String,
@@ -64,7 +64,7 @@ pub struct ProductPromotion {
 #[derive(Debug)]
 pub struct ProductDB {
     pub item_id: String,
-    pub brand_name: String,
+    pub brand_name: Option<String>,
     pub product_type: String,
     pub product_label: String,
     pub canonical_url: String,

@@ -17,7 +17,14 @@ async fn main() -> Result<()> {
 
     for promo in config.promos {
         println!("Loading promo {}", promo.name);
-        let promo = requests::get_promo(promo)?;
+        let promo = match requests::get_promo(promo) {
+            Ok(p) => p,
+            Err(e) => {
+                eprintln!("Warning: {e}");
+                continue;
+            }
+        };
+
         let promo_db: PromotionDB = promo.into();
         promo_db.create(&pool).await?;
 
