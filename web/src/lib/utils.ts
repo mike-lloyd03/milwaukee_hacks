@@ -19,7 +19,14 @@ export function formatPercent(value: number) {
 }
 
 export function simplifyName(product: ProductDB): string {
-	const removeStr = ["18V", "Lithium-Ion", "Cordless", "12V", "12-Volt"];
+	const removeStr = [
+		"18V",
+		"18-Volt",
+		"Lithium-Ion",
+		"Cordless",
+		"12V",
+		"12-Volt",
+	];
 	let newName = product.product_label;
 	for (const s of removeStr) {
 		newName = newName.replaceAll(s, "");
