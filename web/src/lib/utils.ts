@@ -1,12 +1,5 @@
-import productsRaw from "$lib/products.json";
 import { type Product } from "$lib/types";
 import type { ProductDB } from "./dbTypes";
-
-// Returns the products available in the specified promo
-export function getProducts(promo: string): Product[] {
-	const products = productsRaw as Record<string, Product[]>;
-	return products[promo].sort((a, b) => a.name.localeCompare(b.name));
-}
 
 export function formatCurrency(value: number) {
 	const formatter = new Intl.NumberFormat("en-US", {
@@ -46,4 +39,13 @@ export function uniqueProducts(l: Product[]): Product[] {
 		}
 	}
 	return r;
+}
+
+export function isFuture(dateString: string): boolean {
+	const [month, day, year] = dateString.split("/").map(Number);
+	const inputDate = new Date(year, month - 1, day);
+	inputDate.setHours(23, 59, 59);
+	const today = new Date();
+
+	return inputDate > today;
 }

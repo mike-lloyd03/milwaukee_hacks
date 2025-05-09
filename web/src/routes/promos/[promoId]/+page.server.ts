@@ -1,11 +1,16 @@
 import type { PageServerLoad } from "./$types";
 import type { ProductDB, PromotionDB } from "$lib/dbTypes";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, params }) => {
 	const db = locals.db;
 	const promo = db
 		.prepare("select * from promotions where item_id = ?")
-		.get("315442497") as PromotionDB;
+		.get(params.promoId) as PromotionDB;
+
+	if (promo.reward_tiers) {
+		promo.reward_tiers = JSON.parse(promo.reward_tiers.toString());
+	}
+
 	const itemIDs: string[] = JSON.parse(promo.item_ids);
 
 	let query = "select * from products where item_id in (";

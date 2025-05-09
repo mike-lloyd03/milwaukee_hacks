@@ -47,4 +47,17 @@ export interface PromotionDB {
 	reward_amount_per_order?: number;
 	reward_fixed_price?: number;
 	reward_percent?: number;
+	reward_tiers?: RewardTier[];
+}
+
+export interface RewardTier {
+	maxAllowedRewardAmount?: number;
+	maxPurchaseQuantity?: number;
+	minPurchaseQuantity?: number;
+	maxPurchaseAmount?: number;
+	minPurchaseAmount?: number;
+	rewardAmountPerItem?: number;
+	rewardAmountPerOrder?: number;
+	rewardFixedPrice?: number;
+	rewardPercent?: number;
 }
