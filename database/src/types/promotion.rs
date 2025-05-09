@@ -1,5 +1,5 @@
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Deserialize)]
@@ -48,7 +48,7 @@ pub struct Reward {
     pub tiers: Vec<RewardTier>,
 }
 
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RewardTier {
     pub max_allowed_reward_amount: Option<f32>,
@@ -85,6 +85,7 @@ pub struct PromotionDB {
     pub reward_amount_per_order: Option<f32>,
     pub reward_fixed_price: Option<f32>,
     pub reward_percent: Option<f32>,
+    pub reward_tiers: sqlx::types::Json<Vec<RewardTier>>,
 }
 
 impl From<Promotion> for PromotionDB {
@@ -120,6 +121,7 @@ impl From<Promotion> for PromotionDB {
             reward_amount_per_order: reward.reward_amount_per_order,
             reward_fixed_price: reward.reward_fixed_price,
             reward_percent: reward.reward_percent,
+            reward_tiers: from_val.reward.tiers.into(),
         }
     }
 }
@@ -149,10 +151,11 @@ impl PromotionDB {
                 reward_amount_per_item,
                 reward_amount_per_order,
                 reward_fixed_price,
-                reward_percent
+                reward_percent,
+                reward_tiers
             )
             values
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
             on conflict (promotion_id)
             do update set
                 name = $2,
@@ -175,7 +178,8 @@ impl PromotionDB {
                 reward_amount_per_item = $19,
                 reward_amount_per_order = $20,
                 reward_fixed_price = $21,
-                reward_percent = $22
+                reward_percent = $22,
+                reward_tiers = $23
             where promotion_id = $1
             "#,
             self.promotion_id,
@@ -200,8 +204,9 @@ impl PromotionDB {
             self.reward_amount_per_order,
             self.reward_fixed_price,
             self.reward_percent,
+            self.reward_tiers
         )
-        .execute(pool)
+            .execute(pool)
         .await?;
         Ok(())
     }
