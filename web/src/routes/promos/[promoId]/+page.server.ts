@@ -4,7 +4,7 @@ import type { ProductDB, PromotionDB } from "$lib/dbTypes";
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const db = locals.db;
 	const promo = db
-		.prepare("select * from promotions where item_id = ?")
+		.prepare("select * from promotions where promotion_id = ?")
 		.get(params.promoId) as PromotionDB;
 
 	if (promo.reward_tiers) {

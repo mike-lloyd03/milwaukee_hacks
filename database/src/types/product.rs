@@ -1,4 +1,5 @@
 use anyhow::Result;
+use database::now_timestamp;
 use serde::Deserialize;
 use sqlx::{types::Json, SqlitePool};
 
@@ -28,6 +29,7 @@ pub struct Pricing {
     pub value: f32,
     pub original: f32,
     pub promotion: ProductPromotion,
+    pub conditional_promotions: Vec<ConditionalPromotion>,
     pub message: Option<String>,
     pub special_buy: Option<String>,
 }
@@ -61,6 +63,12 @@ pub struct ProductPromotion {
     pub special_buy_percentage_off: Option<f32>,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ConditionalPromotion {
+    pub promotion_id: Option<u32>,
+}
+
 #[derive(Debug)]
 pub struct ProductDB {
     pub item_id: String,
@@ -86,6 +94,7 @@ pub struct ProductDB {
     pub image_primary_sizes: Json<Vec<String>>,
     pub image_secondary_url: String,
     pub image_secondary_sizes: Json<Vec<String>>,
+    pub updated_at: u32,
 }
 
 impl From<Product> for ProductDB {
@@ -128,6 +137,7 @@ impl From<Product> for ProductDB {
             image_primary_sizes: primary_image.sizes.into(),
             image_secondary_url: secondary_image.url,
             image_secondary_sizes: secondary_image.sizes.into(),
+            updated_at: now_timestamp(),
         }
     }
 }
@@ -158,9 +168,10 @@ impl ProductDB {
                 image_primary_url,
                 image_primary_sizes,
                 image_secondary_url,
-                image_secondary_sizes
+                image_secondary_sizes,
+                updated_at
             ) values 
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
             on conflict (item_id)
             do update set
                 brand_name = $2,
@@ -184,7 +195,8 @@ impl ProductDB {
                 image_primary_url = $20,
                 image_primary_sizes = $21,
                 image_secondary_url = $22,
-                image_secondary_sizes = $23
+                image_secondary_sizes = $23,
+                updated_at = $24
             where item_id = $1
             "#,
             self.item_id,
@@ -209,8 +221,19 @@ impl ProductDB {
             self.image_primary_url,
             self.image_primary_sizes,
             self.image_secondary_url,
-            self.image_secondary_sizes
+            self.image_secondary_sizes,
+                self.updated_at
         ).execute(pool).await?;
+        Ok(())
+    }
+
+    pub async fn delete_all_before(pool: &SqlitePool, timestamp: u32) -> Result<()> {
+        sqlx::query!(
+            "delete from products where updated_at is null or updated_at < ?",
+            timestamp
+        )
+        .execute(pool)
+        .await?;
         Ok(())
     }
 }

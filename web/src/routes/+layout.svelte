@@ -22,6 +22,8 @@
 		ulClass="flex flex-col p-4 mt-4 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:text-sm md:font-medium md:items-center"
 	>
 		<NavLi href="/">Home</NavLi>
+		<NavLi href="/tools">Tools</NavLi>
+		<NavLi href="/promos">Promos</NavLi>
 		<NavLi href="/contact">Contact</NavLi>
 		<NavLi><DarkMode /></NavLi>
 	</NavUl>

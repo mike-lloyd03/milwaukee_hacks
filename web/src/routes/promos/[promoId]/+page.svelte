@@ -59,7 +59,7 @@
 		}
 	});
 
-	function newRewardAmount(cart: Cart): number {
+	function rewardAmount(cart: Cart): number {
 		const cartSize = cart.items.length;
 		let rewards: number[] = [];
 
@@ -160,6 +160,6 @@
 			{minCartTotal}
 			{options}
 		/>
-		<ResultsCard {carts} {requiredProducts} rewardAmount={newRewardAmount} />
+		<ResultsCard {carts} {requiredProducts} {rewardAmount} />
 	</div>
 </div>

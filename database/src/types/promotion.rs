@@ -1,4 +1,5 @@
 use anyhow::Result;
+use database::now_timestamp;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
@@ -21,7 +22,7 @@ pub struct Promotion {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Description {
-    pub long_desc: String,
+    pub long_desc: Option<String>,
     pub short_desc: String,
 }
 
@@ -68,7 +69,7 @@ pub struct PromotionDB {
     pub item_id: Option<String>,
     pub experience_tag: String,
     pub sub_experience_tag: String,
-    pub long_description: String,
+    pub long_description: Option<String>,
     pub short_description: String,
     pub start_date: String,
     pub end_date: String,
@@ -86,6 +87,7 @@ pub struct PromotionDB {
     pub reward_fixed_price: Option<f32>,
     pub reward_percent: Option<f32>,
     pub reward_tiers: sqlx::types::Json<Vec<RewardTier>>,
+    pub updated_at: u32,
 }
 
 impl From<Promotion> for PromotionDB {
@@ -122,6 +124,7 @@ impl From<Promotion> for PromotionDB {
             reward_fixed_price: reward.reward_fixed_price,
             reward_percent: reward.reward_percent,
             reward_tiers: from_val.reward.tiers.into(),
+            updated_at: now_timestamp(),
         }
     }
 }
@@ -152,10 +155,11 @@ impl PromotionDB {
                 reward_amount_per_order,
                 reward_fixed_price,
                 reward_percent,
-                reward_tiers
+                reward_tiers,
+                updated_at
             )
             values
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
             on conflict (promotion_id)
             do update set
                 name = $2,
@@ -179,7 +183,8 @@ impl PromotionDB {
                 reward_amount_per_order = $20,
                 reward_fixed_price = $21,
                 reward_percent = $22,
-                reward_tiers = $23
+                reward_tiers = $23,
+                updated_at = $24
             where promotion_id = $1
             "#,
             self.promotion_id,
@@ -204,9 +209,20 @@ impl PromotionDB {
             self.reward_amount_per_order,
             self.reward_fixed_price,
             self.reward_percent,
-            self.reward_tiers
+            self.reward_tiers,
+            self.updated_at
         )
             .execute(pool)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn delete_all_before(pool: &SqlitePool, timestamp: u32) -> Result<()> {
+        sqlx::query!(
+            "delete from promotions where updated_at is null or updated_at < ?",
+            timestamp
+        )
+        .execute(pool)
         .await?;
         Ok(())
     }

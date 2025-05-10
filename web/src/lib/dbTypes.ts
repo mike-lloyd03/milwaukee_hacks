@@ -30,7 +30,7 @@ export interface PromotionDB {
 	item_id: string;
 	experience_tag: string;
 	sub_experience_tag: string;
-	long_description: string;
+	long_description?: string;
 	short_description: string;
 	start_date: string;
 	end_date: string;

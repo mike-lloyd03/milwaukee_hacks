@@ -1,14 +1,10 @@
 use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 
-use crate::config::Promo as ConfigPromo;
 use crate::types::Promotion;
 
 const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int) {
-  promotionProducts(
-    itemId: $itemId
-    pageSize: $pageSize
-  ) {
+  promotionProducts(itemId: $itemId, pageSize: $pageSize) {
     promotions {
       experienceTag
       promotionId
@@ -16,7 +12,6 @@ const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int)
       description {
         longDesc
         shortDesc
-        __typename
       }
       eligibilityCriteria {
         itemGroup
@@ -26,7 +21,6 @@ const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int)
           maxPurchaseQuantity
           nvalues
           itemIds
-          __typename
         }
         itemIds
         minPurchaseAmount
@@ -35,14 +29,11 @@ const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int)
           pageSize
           startIndex
           totalProducts
-          __typename
         }
-        __typename
       }
       dates {
         end
         start
-        __typename
       }
       reward {
         tiers {
@@ -54,15 +45,11 @@ const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int)
           rewardAmountPerOrder
           rewardFixedPrice
           rewardPercent
-          __typename
         }
-        __typename
       }
     }
-    __typename
   }
-}
-"#;
+}"#;
 
 #[derive(Debug, Deserialize)]
 struct Response {
@@ -80,9 +67,10 @@ struct Promotions {
     promotions: Vec<Promotion>,
 }
 
-pub fn get_promo(promo: ConfigPromo) -> Result<Promotion> {
+/// Fetches any promotions for the given product item_id
+pub fn get_promo(item_id: &str) -> Result<Promotion> {
     let variables = serde_json::json!({
-            "itemId":promo.id.to_string(),
+            "itemId":item_id,
             "pageSize": 48,
     });
 
@@ -99,7 +87,9 @@ pub fn get_promo(promo: ConfigPromo) -> Result<Promotion> {
     .send_json(body)?
     .body_mut()
     .read_json::<Response>()
-    .context("Failed to parse promotionProducts response")?;
+    .context(format!(
+        "Failed to parse promotionProducts response for item_id {item_id}",
+    ))?;
 
     match resp
         .data
@@ -109,11 +99,7 @@ pub fn get_promo(promo: ConfigPromo) -> Result<Promotion> {
         .take(1)
         .next()
     {
-        Some(mut p) => {
-            p.name = Some(promo.name);
-            p.item_id = Some(promo.id.to_string());
-            Ok(p)
-        }
+        Some(p) => Ok(p),
         None => bail!("Promotion not found"),
     }
 }

@@ -9,6 +9,7 @@ declare global {
 			db: Database;
 		}
 		interface PageData {
+			product?: ProductDB;
 			products?: ProductDB[];
 			promo?: PromotionDB;
 			promos?: PromotionDB[];
