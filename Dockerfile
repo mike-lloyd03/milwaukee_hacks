@@ -21,7 +21,7 @@ RUN rustup target add x86_64-unknown-linux-musl
 RUN SQLX_OFFLINE=true cargo build --release --target x86_64-unknown-linux-musl
 
 ###### Final
-FROM node:23-slim
+FROM node:24-slim
 
 RUN npm install -g pnpm
 

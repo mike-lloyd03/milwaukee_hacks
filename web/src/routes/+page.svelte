@@ -31,14 +31,18 @@
 <div class="mx-auto my-6">
 	<Heading tag="h2" class="mb-4">Promos</Heading>
 	<Heading tag="h3" class="mb-4">Active</Heading>
-	<Listgroup active items={activeLinks} let:item class="mx-auto w-96">
-		{item.name}
-	</Listgroup>
-
-	<div class="my-16">
-		<Heading tag="h3" class="mb-4">Expired Promos</Heading>
-		<Listgroup active items={inactiveLinks} let:item class="mx-auto w-96">
-			{item.name}
+	{#if activeLinks.length > 0}
+		<Listgroup active items={activeLinks} let:item class="mx-auto w-96">
+			{item.name ?? ''}
 		</Listgroup>
-	</div>
+	{/if}
+
+	{#if inactiveLinks.length > 0}
+		<div class="my-16">
+			<Heading tag="h3" class="mb-4">Expired Promos</Heading>
+			<Listgroup active items={inactiveLinks} let:item class="mx-auto w-96">
+				{item.name ?? ''}
+			</Listgroup>
+		</div>
+	{/if}
 </div>
