@@ -127,22 +127,28 @@ query searchModel($startIndex: Int, $pageSize: Int, $orderBy: ProductSort, $filt
   }
 }"#;
 
-// brand=Milwaukee:                                     5yc1vZc1xy Zzv
-// brand=Milwaukee, savingsCenter=BMSM:                 5yc1vZc1xy Zzv Z1z10aav
-// brand=Milwaukee, savingsCenter=BOGO:                 5yc1vZc1xy Zzv Z1z1xyom
-// brand=Milwaukee, savingsCenter=SpecialBuy:           5yc1vZc1xy Zzv Z1z11ao3
-// savingsCenter=SpecialBuy:                            5yc1vZc1xy     Z1z11ao3
-// savingsCenter=BMSM:                                  5yc1vZc1xy     Z1z10aav
-// savingsCenter=BOGO:                                  5yc1vZc1xy     Z1z1xyom
-// brand=Milwaukee, savingsCenter=BMSM,BOGO,SpecialBuy: 5yc1vZc1xy Zzv Z1z10aav Z1z11ao3 Z1z1xyom
-//
-// 5yc1vZc1xyZzvZ1z10aavZ1z1xyom
+// dept=Tools, brand=Milwaukee:                                     5yc1vZc 1xy Zzv
+// dept=Tools, brand=Milwaukee, savingsCenter=BMSM:                 5yc1vZc 1xy Zzv Z1z10aav
+// dept=Tools, brand=Milwaukee, savingsCenter=BOGO:                 5yc1vZc 1xy Zzv Z1z1xyom
+// dept=Tools, brand=Milwaukee, savingsCenter=SpecialBuy:           5yc1vZc 1xy Zzv Z1z11ao3
+// dept=Tools, savingsCenter=SpecialBuy:                            5yc1vZc 1xy     Z1z11ao3
+// dept=Tools, savingsCenter=BMSM:                                  5yc1vZc 1xy     Z1z10aav
+// dept=Tools, savingsCenter=BOGO:                                  5yc1vZc 1xy     Z1z1xyom
+// dept=Tools, brand=Milwaukee, savingsCenter=BMSM,BOGO,SpecialBuy: 5yc1vZc 1xy Zzv Z1z10aav Z1z11ao3 Z1z1xyom
+// dept=PowerTools, brand=Milwaukee, savingsCenter=BMSM, BOGO:      5yc1vZc 298 Zzv Z1z10aav Z1z1xyom
+// dept=Tools, brand=None, savingsCenter=BMSM, BOGO:                5yc1vZc 1xy Z1z 10aavZ1z1xyom
 
 pub enum Brand {
     Milwaukee,
 }
 
+pub enum Department {
+    Tools,
+    PowerTools,
+}
+
 pub struct SearchParams {
+    pub department: Option<Department>,
     pub brand: Option<Brand>,
     pub buy_more_save_more: bool,
     pub buy_one_get_one: bool,
@@ -151,12 +157,21 @@ pub struct SearchParams {
 
 impl SearchParams {
     pub fn to_nav_param(&self) -> String {
-        let mut nav_param = String::from("5yc1vZc1xy");
+        let mut nav_param = String::from("5yc1vZc");
 
-        if let Some(brand) = &self.brand {
-            match brand {
+        match &self.department {
+            Some(d) => match d {
+                Department::Tools => nav_param += "1xy",
+                Department::PowerTools => nav_param += "298",
+            },
+            None => nav_param += "1xy",
+        }
+
+        match &self.brand {
+            Some(b) => match b {
                 Brand::Milwaukee => nav_param += "Zzv",
-            }
+            },
+            None => nav_param += "Z1z",
         }
 
         if self.buy_more_save_more {

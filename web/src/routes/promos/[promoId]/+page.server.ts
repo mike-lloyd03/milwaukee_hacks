@@ -11,7 +11,13 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		promo.reward_tiers = JSON.parse(promo.reward_tiers.toString());
 	}
 
-	const itemIDs: string[] = JSON.parse(promo.item_ids);
+	promo.eligibility_criteria = JSON.parse(
+		promo.eligibility_criteria.toString(),
+	);
+
+	const itemIDs: string[] = promo.eligibility_criteria
+		.map((ec) => ec.itemIds)
+		.flat();
 
 	let query = "select * from products where item_id in (";
 	query += itemIDs.map(() => "?").join(", ");

@@ -24,4 +24,20 @@
 		<P>{formatCurrency(data.product.pricing_value)}</P>
 	</div>
 </div>
-{JSON.stringify(data.product)}
+
+<div>
+	<h2>Available Promotions:</h2>
+	{#if data.promos.length > 0}
+		{#each data.promos as promo}
+			<a href="/promos/{promo.promotion_id}">
+				{promo.short_description}
+			</a>
+		{/each}
+	{:else}
+		No promotions available
+	{/if}
+</div>
+
+<pre class="text-left">
+    {JSON.stringify(data.product, null, 4)}
+</pre>

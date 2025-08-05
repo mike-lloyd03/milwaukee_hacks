@@ -1,8 +1,8 @@
 use anyhow::Result;
 use database::now_timestamp;
-use requests::{Brand, SearchParams};
+use requests::{Brand, Department, SearchParams};
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
-use types::{ProductDB, Promotion, PromotionDB};
+use types::{ProductDB, ProductPromotionDB, Promotion, PromotionDB};
 
 mod config;
 mod requests;
@@ -18,6 +18,7 @@ async fn main() -> Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     let search_params = SearchParams {
+        department: Some(Department::PowerTools),
         brand: Some(Brand::Milwaukee),
         buy_more_save_more: true,
         buy_one_get_one: true,
@@ -28,9 +29,11 @@ async fn main() -> Result<()> {
 
     let mut promos: Vec<Promotion> = Vec::new();
     let products = requests::get_products(search_params)?;
+    let mut product_promos_db: Vec<ProductPromotionDB> = Vec::new();
 
     for product in &products {
         println!("Got product {}", product.id);
+
         let product_promos: Vec<String> = product
             .pricing
             .conditional_promotions
@@ -63,20 +66,28 @@ async fn main() -> Result<()> {
                 }
             };
         }
+
+        for product_promo in &product_promos {
+            let p = ProductPromotionDB::new(&product.id, product_promo);
+            product_promos_db.push(p);
+        }
+    }
+    println!("Got {} products", products.len());
+    println!("Got {} promos", promos.len());
+
+    for product in products {
+        let product_db: ProductDB = product.into();
+        product_db.create(&pool).await?;
     }
 
-    let products_db: Vec<ProductDB> = products.into_iter().map(|p| p.into()).collect();
-    for product in &products_db {
-        product.create(&pool).await?;
+    for promo in promos {
+        let promo_db: PromotionDB = promo.into();
+        promo_db.create(&pool).await?;
     }
 
-    let promos_db: Vec<PromotionDB> = promos.into_iter().map(|p| p.into()).collect();
-    for promo in &promos_db {
-        promo.create(&pool).await?;
+    for mut product_promo in product_promos_db {
+        product_promo.create(&pool).await?;
     }
-
-    println!("Got {} products", products_db.len());
-    println!("Got {} promos", promos_db.len());
 
     ProductDB::delete_all_before(&pool, now).await?;
     PromotionDB::delete_all_before(&pool, now).await?;

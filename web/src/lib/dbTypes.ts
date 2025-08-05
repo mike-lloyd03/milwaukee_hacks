@@ -48,6 +48,7 @@ export interface PromotionDB {
 	reward_fixed_price?: number;
 	reward_percent?: number;
 	reward_tiers?: RewardTier[];
+	eligibility_criteria: EligibilityCriterion[];
 }
 
 export interface RewardTier {
@@ -60,4 +61,18 @@ export interface RewardTier {
 	rewardAmountPerOrder?: number;
 	rewardFixedPrice?: number;
 	rewardPercent?: number;
+}
+
+export interface EligibilityCriterion {
+	itemGroup: string;
+	categories: string[];
+	itemIds: string;
+	minPurchaseAmount?: number;
+	minPurchaseQuantity?: number;
+}
+
+export interface ProductPromotionDB {
+	id: number;
+	product_id: string;
+	promotion_id: string;
 }

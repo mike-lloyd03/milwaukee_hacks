@@ -9,7 +9,8 @@ pub struct Promotion {
     pub promotion_id: String,
     // This field is added
     pub name: Option<String>,
-    // This field is the itemId used in the GraphQL query for fetching this promo
+    // This field is the itemId used in the GraphQL query for fetching this promo. It is the
+    // product ID
     pub item_id: Option<String>,
     pub experience_tag: String,
     pub sub_experience_tag: String,
@@ -26,7 +27,7 @@ pub struct Description {
     pub short_desc: String,
 }
 
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EligibilityCriterion {
     pub item_group: String,
@@ -87,6 +88,7 @@ pub struct PromotionDB {
     pub reward_fixed_price: Option<f32>,
     pub reward_percent: Option<f32>,
     pub reward_tiers: sqlx::types::Json<Vec<RewardTier>>,
+    pub eligibility_criteria: sqlx::types::Json<Vec<EligibilityCriterion>>,
     pub updated_at: u32,
 }
 
@@ -124,6 +126,7 @@ impl From<Promotion> for PromotionDB {
             reward_fixed_price: reward.reward_fixed_price,
             reward_percent: reward.reward_percent,
             reward_tiers: from_val.reward.tiers.into(),
+            eligibility_criteria: from_val.eligibility_criteria.into(),
             updated_at: now_timestamp(),
         }
     }
@@ -156,10 +159,11 @@ impl PromotionDB {
                 reward_fixed_price,
                 reward_percent,
                 reward_tiers,
+                eligibility_criteria,
                 updated_at
             )
             values
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
             on conflict (promotion_id)
             do update set
                 name = $2,
@@ -184,7 +188,8 @@ impl PromotionDB {
                 reward_fixed_price = $21,
                 reward_percent = $22,
                 reward_tiers = $23,
-                updated_at = $24
+                eligibility_criteria = $24,
+                updated_at = $25
             where promotion_id = $1
             "#,
             self.promotion_id,
@@ -210,6 +215,7 @@ impl PromotionDB {
             self.reward_fixed_price,
             self.reward_percent,
             self.reward_tiers,
+            self.eligibility_criteria,
             self.updated_at
         )
             .execute(pool)
