@@ -7,6 +7,7 @@
 
 	interface Link {
 		name: string;
+		experience_tag: string;
 		href: string;
 	}
 
@@ -17,6 +18,7 @@
 		.map((p) => {
 			return {
 				name: p.long_description ?? p.short_description,
+				experience_tag: p.experience_tag,
 				href: `/promos/${p.promotion_id}`
 			};
 		});
@@ -28,6 +30,7 @@
 		.map((p) => {
 			return {
 				name: p.long_description ?? p.short_description,
+				experience_tag: p.experience_tag,
 				href: `/promos/${p.promotion_id}`
 			};
 		});
@@ -38,7 +41,7 @@
 
 	{#if activeLinks.length}
 		<Listgroup active items={activeLinks} let:item class="mx-auto w-2xl">
-			{item.name}
+			{item.name} ({item.experience_tag})
 		</Listgroup>
 	{/if}
 
@@ -46,7 +49,7 @@
 		<div class="my-16">
 			<Heading tag="h3" class="mb-4">Expired Promos</Heading>
 			<Listgroup active items={inactiveLinks} let:item class="mx-auto w-96">
-				{item.name}
+				{item.name} ({item.experience_tag})
 			</Listgroup>
 		</div>
 	{/if}

@@ -22,6 +22,7 @@ export function simplifyName(product: ProductDB): string {
 	const removeStr = [
 		"18V",
 		"18-Volt",
+		"18-V",
 		"Lithium-Ion",
 		"Cordless",
 		"12V",

@@ -3,7 +3,7 @@ use database::now_timestamp;
 use serde::Deserialize;
 use sqlx::{types::Json, SqlitePool};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Product {
     #[serde(rename = "itemId")]
@@ -13,7 +13,7 @@ pub struct Product {
     pub media: Media,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Identifiers {
     pub item_id: String,
@@ -23,7 +23,7 @@ pub struct Identifiers {
     pub canonical_url: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Pricing {
     pub value: f32,
@@ -34,13 +34,13 @@ pub struct Pricing {
     pub special_buy: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Media {
     images: Vec<Image>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Image {
     pub url: String,
@@ -48,7 +48,7 @@ pub struct Image {
     pub sub_type: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProductPromotion {
     pub promotion_tag: Option<String>,
@@ -63,7 +63,7 @@ pub struct ProductPromotion {
     pub special_buy_percentage_off: Option<f32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ConditionalPromotion {
     pub promotion_id: Option<u32>,

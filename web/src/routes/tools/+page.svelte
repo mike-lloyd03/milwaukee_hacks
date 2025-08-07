@@ -6,6 +6,7 @@
 </script>
 
 <div>
+	<p>Found {data.products.length} tools</p>
 	<ul>
 		{#each data.products as product}
 			<li>

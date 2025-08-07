@@ -77,10 +77,10 @@ struct Response {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchModel {
-    search_model: Products,
+    search_model: Option<Products>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 struct Products {
     products: Vec<Product>,
 }
@@ -107,5 +107,9 @@ pub fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
     .read_json::<Response>()
     .context("Failed to parse promotionProductsItems response")?;
 
-    Ok(resp.data.search_model.products)
+    Ok(resp
+        .data
+        .search_model
+        .unwrap_or_else(Products::default)
+        .products)
 }

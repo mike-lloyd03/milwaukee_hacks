@@ -20,10 +20,19 @@ async fn main() -> Result<()> {
     let search_params = SearchParams {
         department: Some(Department::PowerTools),
         brand: Some(Brand::Milwaukee),
-        buy_more_save_more: true,
-        buy_one_get_one: true,
+        buy_more_save_more: false,
+        buy_one_get_one: false,
         special_buy: false,
     };
+
+    println!(
+        "Searching for products with brand {:?}, bmsm: {}, bogo: {}, special buy: {}. nav_param: {}",
+        search_params.brand,
+        search_params.buy_more_save_more,
+        search_params.buy_one_get_one,
+        search_params.special_buy,
+        search_params.to_nav_param()
+    );
 
     let now = now_timestamp();
 

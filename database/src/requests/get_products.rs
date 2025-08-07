@@ -138,6 +138,7 @@ query searchModel($startIndex: Int, $pageSize: Int, $orderBy: ProductSort, $filt
 // dept=PowerTools, brand=Milwaukee, savingsCenter=BMSM, BOGO:      5yc1vZc 298 Zzv Z1z10aav Z1z1xyom
 // dept=Tools, brand=None, savingsCenter=BMSM, BOGO:                5yc1vZc 1xy Z1z 10aavZ1z1xyom
 
+#[derive(Debug)]
 pub enum Brand {
     Milwaukee,
 }
@@ -192,28 +193,28 @@ impl SearchParams {
 
 #[derive(Debug, Deserialize)]
 struct Response {
-    data: SearchModel,
+    data: Data,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct SearchModel {
-    search_model: Products,
+struct Data {
+    search_model: Option<SearchModel>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SearchModel {
+    products: Vec<Product>,
+    search_report: SearchReport,
+}
+
+#[derive(Debug, Default, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchReport {
     pub total_products: u32,
     pub page_size: u32,
     pub start_index: u32,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Products {
-    products: Vec<Product>,
-    search_report: SearchReport,
 }
 
 pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
@@ -238,20 +239,22 @@ pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
             "query": QUERY,
         });
 
-        let mut resp = ureq::post("https://apionline.homedepot.com/federation-gateway/graphql")
+        let resp_str = ureq::post("https://apionline.homedepot.com/federation-gateway/graphql")
             .header("x-experience-name", "fusion-gm-pip-desktop")
             .header("content-type", "application/json")
             .send_json(body)?
             .body_mut()
-            .read_json::<Response>()
-            .context("Failed to parse get_products response")?;
+            .read_to_string()?;
 
-        products.append(&mut resp.data.search_model.products);
+        let resp: Response =
+            serde_json::from_str(&resp_str).context("Failed to parse get_products response")?;
 
-        if index > resp.data.search_model.search_report.total_products {
-            break;
-        } else {
-            index += page_size
+        match resp.data.search_model {
+            Some(mut search_model) if index < search_model.search_report.total_products => {
+                products.append(&mut search_model.products);
+                index += page_size
+            }
+            _ => break,
         }
     }
 
