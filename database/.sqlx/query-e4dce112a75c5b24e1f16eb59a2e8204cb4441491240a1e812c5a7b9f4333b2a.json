@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into product_promotions (\n                product_id,\n                promotion_id\n            )\n            values\n            ($1, $2)\n            returning id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e4dce112a75c5b24e1f16eb59a2e8204cb4441491240a1e812c5a7b9f4333b2a"
+}

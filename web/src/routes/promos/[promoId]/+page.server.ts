@@ -1,5 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import type { ProductDB, PromotionDB } from "$lib/dbTypes";
+import { getProducts, type ProductDB, type PromotionDB } from "$lib/dbTypes";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const db = locals.db;
@@ -19,11 +19,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		.map((ec) => ec.itemIds)
 		.flat();
 
-	let query = "select * from products where item_id in (";
-	query += itemIDs.map(() => "?").join(", ");
-	query += ") order by pricing_value";
-
-	const products: ProductDB[] = db.prepare(query).all(itemIDs) as ProductDB[];
+	const products = getProducts(db, itemIDs);
 
 	return {
 		products,

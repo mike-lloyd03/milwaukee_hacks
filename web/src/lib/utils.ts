@@ -1,5 +1,5 @@
-import { type Product } from "$lib/types";
 import type { ProductDB } from "./dbTypes";
+import type { Product } from "./pkg/algorithm";
 
 export function formatCurrency(value: number) {
 	const formatter = new Intl.NumberFormat("en-US", {

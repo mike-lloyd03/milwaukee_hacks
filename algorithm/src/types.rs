@@ -17,6 +17,7 @@ impl Product {
 }
 
 #[wasm_bindgen(getter_with_clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct Cart {
     pub items: Vec<Product>,
     pub total: f32,

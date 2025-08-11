@@ -1,5 +1,9 @@
 import type { PageServerLoad } from "./$types";
-import type { ProductDB, ProductPromotionDB, PromotionDB } from "$lib/dbTypes";
+import {
+	getProduct,
+	type ProductPromotionDB,
+	type PromotionDB,
+} from "$lib/dbTypes";
 import { fail } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -8,9 +12,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	}
 
 	const db = locals.db;
-	const product = db
-		.prepare("select * from products where item_id = ?")
-		.get(params.itemId) as ProductDB;
+	const product = getProduct(db, params.itemId);
 
 	const product_promotions = db
 		.prepare("select * from product_promotions where product_id = ?")

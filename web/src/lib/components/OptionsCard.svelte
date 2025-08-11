@@ -1,9 +1,13 @@
 <script lang="ts">
 	import { bmsm, Cart } from '$lib/pkg/algorithm';
 	import type { ProductDB } from '$lib/dbTypes';
-	import { Card, Heading, Button, Tooltip, Input, Modal, Toggle } from 'flowbite-svelte';
+	import { Card, Heading, Button, Modal } from 'flowbite-svelte';
 	import { formatCurrency } from '$lib/utils';
 	import type { Snippet } from 'svelte';
+	import SearchInput from './SearchInput.svelte';
+	import ItemScrollBox from './ItemScrollBox.svelte';
+	import ExcludedProducts from './ExcludedProducts.svelte';
+	import PromoItem from './PromoItem.svelte';
 
 	interface Props {
 		products: ProductDB[];
@@ -45,8 +49,9 @@
 		const productData = products
 			.filter((p) => !excludedProducts.includes(p.product_label))
 			.map((p: ProductDB) => {
-				return { name: p.product_label, price: p.pricing_value };
+				return { name: p.product_label, price: p.pricing.value };
 			});
+		console.log('data: ', productData, minCartSize, maxCartSize, minCartTotal, requiredProducts);
 		const allCarts = bmsm(
 			productData,
 			minCartSize,
@@ -62,10 +67,8 @@
 	<Heading tag="h5">Select Products</Heading>
 	<div class="my-4 flex flex-col gap-4">
 		<div>
-			<Input class="mx-auto mb-4 max-w-96" bind:value={productsFilter} placeholder="Search" />
-			<div
-				class="flex h-96 flex-col overflow-y-auto rounded-md border border-gray-300 p-2 dark:border-gray-500"
-			>
+			<SearchInput bind:value={productsFilter} />
+			<ItemScrollBox>
 				{#each products as product (product.product_label)}
 					{#if product.product_label.toLowerCase().includes(productsFilter.toLowerCase())}
 						<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
@@ -97,36 +100,14 @@
 									/>
 								{/if}
 
-								<div class="flex w-full items-center justify-between">
-									<div class="flex items-center">
-										<img
-											src={product.image_primary_url.replace('<SIZE>', '65')}
-											alt="tool"
-											class="rounded-md"
-										/>
-										<a
-											href={`https://www.homedepot.com${product.canonical_url}`}
-											class="mx-2 hover:underline"
-											target="_blank">{product.product_label}</a
-										>
-									</div>
-									{formatCurrency(product.pricing_value)}
-								</div>
+								<PromoItem {product} />
 							</label>
 						</div>
 					{/if}
 				{/each}
-			</div>
-			<div class="my-2">
-				<div class="flex gap-2">
-					Excluded Products
-					<Toggle bind:checked={selectProductsMode} />
-					<Tooltip placement="bottom"
-						>Toggle between selecting products to include in the cart and to exclude</Tooltip
-					>
-					Selected Products
-				</div>
-			</div>
+			</ItemScrollBox>
+
+			<ExcludedProducts bind:selectProductsMode />
 		</div>
 
 		<div class="mx-auto flex max-w-md gap-2">

@@ -1,9 +1,9 @@
+use crate::now_timestamp;
 use anyhow::Result;
-use database::now_timestamp;
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Promotion {
     pub promotion_id: String,
@@ -20,7 +20,7 @@ pub struct Promotion {
     pub reward: Reward,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Description {
     pub long_desc: Option<String>,
@@ -37,14 +37,14 @@ pub struct EligibilityCriterion {
     pub min_purchase_quantity: Option<f32>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Dates {
     pub end: String,
     pub start: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Reward {
     pub tiers: Vec<RewardTier>,

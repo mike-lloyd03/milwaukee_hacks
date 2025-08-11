@@ -1,47 +1,106 @@
+mod promos;
 mod types;
-use types::*;
 
-use itertools::Itertools;
-use wasm_bindgen::prelude::*;
+#[cfg(test)]
+mod tests {
+    use crate::promos::bogo::bogo;
+    use crate::types::{Cart, Product};
 
-#[wasm_bindgen]
-pub fn bmsm(
-    products: JsValue,
-    min_cart_size: usize,
-    max_cart_size: usize,
-    min_total: f32,
-    required_products: Vec<String>,
-) -> Vec<Cart> {
-    let products: Vec<Product> = serde_wasm_bindgen::from_value(products).unwrap();
+    use wasm_bindgen_test::*;
 
-    let mut combinations: Vec<Vec<&Product>> = vec![];
+    #[wasm_bindgen_test]
+    fn test_bogo() {
+        let mut src_products = vec![
+            Product {
+                name: "product1".to_string(),
+                price: 10.0,
+            },
+            Product {
+                name: "product2".to_string(),
+                price: 20.0,
+            },
+            Product {
+                name: "product3".to_string(),
+                price: 30.0,
+            },
+        ];
 
-    for i in min_cart_size..=max_cart_size {
-        combinations.append(&mut products.iter().combinations_with_replacement(i).collect())
+        let mut tgt_products = vec![
+            Product {
+                name: "product4".to_string(),
+                price: 40.0,
+            },
+            Product {
+                name: "product5".to_string(),
+                price: 50.0,
+            },
+            Product {
+                name: "product6".to_string(),
+                price: 60.0,
+            },
+        ];
+
+        let mut required_product = "product5".to_string();
+
+        let expect = Cart::new(vec![src_products[0].clone(), tgt_products[1].clone()], 60.0);
+
+        let got = bogo(src_products.into(), tgt_products.into(), required_product);
+
+        assert_eq!(expect, got);
+
+        src_products = vec![
+            Product {
+                name: "SAWZALL Metal Cutting Bi-Metal Reciprocating Blade Set (16 Piece)"
+                    .to_string(),
+                price: 27.97,
+            },
+            Product {
+                name:
+                    "SAWZALL Wood and Metal Cutting Bi-Metal Reciprocating Saw Blade Set (10-Piece)"
+                        .to_string(),
+                price: 20.68,
+            },
+            Product {
+                name:
+                    "SAWZALL Demolition Nail-Embedded Wood and Metal Cutting Bi-Metal Reciprocating Saw Blade Set (13 Piece)"
+                        .to_string(),
+                price: 25.97,
+            },
+            Product {
+                name: "M18 FUEL 18V Lith-Ion Brushless Cordless Combo Kit (5-Tool) w/ Two 5.0 Ah Batteries, 1 Charger, & SAWZALL Blade Set".to_string(),
+                price: 669.0,
+            },
+            Product {
+                name: "M18 18-Volt Lith-Ion Cordless Combo Kit 9-Tool w/ 2-Batteries, Charger, & SAWZALL Blade Set".to_string(),
+                price: 619.0,
+            },
+        ];
+
+        tgt_products = vec![
+            Product {
+                name: "6 in. 18 TPI Medium Metal Cutting SAWZALL Reciprocating Saw Blades (5-Pack)".to_string(),
+                price: 13.47,
+            },
+            Product {
+                name: "6 in. 5 TPI Thin Kerf Wood Cutting BiMetal SAWZALL Reciprocating Saw Blades (5-Pack)".to_string(),
+                price: 15.09,
+            },
+            Product {
+                name: "9 in. 10 TPI TORCH Thick Metal Cutting SAWZALL Reciprocating Saw Blades (5-Pack)".to_string(),
+                price: 15.97,
+            },
+        ];
+
+        required_product =
+            "SAWZALL Metal Cutting Bi-Metal Reciprocating Blade Set (16 Piece)".to_string();
+
+        let expect = Cart::new(
+            vec![src_products[0].clone(), tgt_products[2].clone()],
+            27.97 + 15.97,
+        );
+
+        let got = bogo(src_products.into(), tgt_products.into(), required_product);
+
+        assert_eq!(expect, got);
     }
-
-    combinations = combinations
-        .into_iter()
-        .filter(|c| {
-            required_products
-                .iter()
-                .all(|p| c.iter().any(|c| &c.name == p))
-        })
-        .filter(|c| c.iter().map(|c| c.price).sum::<f32>() >= min_total)
-        .collect();
-
-    let mut carts: Vec<Cart> = combinations
-        .into_iter()
-        .map(|c| {
-            let total = c.iter().map(|c| c.price).sum();
-            Cart {
-                items: c.into_iter().map(|p| p.to_owned()).collect(),
-                total,
-            }
-        })
-        .collect();
-
-    carts.sort_by(|a, b| a.total.partial_cmp(&b.total).unwrap());
-
-    carts
 }

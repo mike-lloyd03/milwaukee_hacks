@@ -21,7 +21,7 @@
 			></Heading
 		>
 		<Heading tag="h4">{data.product.brand_name}</Heading>
-		<P>{formatCurrency(data.product.pricing_value)}</P>
+		<P>{formatCurrency(data.product.pricing.value)}</P>
 	</div>
 </div>
 
@@ -37,7 +37,3 @@
 		No promotions available
 	{/if}
 </div>
-
-<pre class="text-left">
-    {JSON.stringify(data.product, null, 4)}
-</pre>

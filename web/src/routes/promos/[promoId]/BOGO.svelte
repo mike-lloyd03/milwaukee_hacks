@@ -2,13 +2,26 @@
 	import PromoTitle from '$lib/components/PromoTitle.svelte';
 	import type { ProductDB, PromotionDB } from '$lib/dbTypes';
 	import { formatCurrency } from '$lib/utils';
-	import { Button, Card, Heading, Radio } from 'flowbite-svelte';
+	import { Button, Card, Heading, Input, Radio } from 'flowbite-svelte';
+	import { bogo, type Cart } from '$lib/pkg/algorithm';
+	import ResultsCard from '$lib/components/ResultsCard.svelte';
+	import ItemScrollBox from '$lib/components/ItemScrollBox.svelte';
+	import SearchInput from '$lib/components/SearchInput.svelte';
+	import ExcludedProducts from '$lib/components/ExcludedProducts.svelte';
+	import PromoItem from '$lib/components/PromoItem.svelte';
 
 	interface Props {
 		promo: PromotionDB;
 		products: ProductDB[];
 	}
 	let { promo, products }: Props = $props();
+
+	let requiredProduct: string = $state('');
+	let carts: Cart[] = $state([]);
+	let srcProductsFilter = $state('');
+	let tgtProductsFilter = $state('');
+	let selectProductsMode = $state(true);
+	let excludedProducts: string[] = $state([]);
 
 	const srcProductIds = promo.eligibility_criteria.filter((ec) => ec.itemGroup.startsWith('SRC'))[0]
 		.itemIds;
@@ -17,61 +30,93 @@
 
 	let srcProducts = products.filter((p) => srcProductIds.includes(p.item_id));
 	let tgtProducts = products.filter((p) => tgtProductIds.includes(p.item_id));
+
+	function calculate() {
+		let srcProductsAlgo = srcProducts.map((p) => ({
+			name: p.product_label,
+			price: p.pricing.value
+		}));
+		let tgtProductsAlgo = tgtProducts.map((p) => ({
+			name: p.product_label,
+			price: p.pricing.value
+		}));
+		carts = [bogo(srcProductsAlgo, tgtProductsAlgo, requiredProduct)];
+	}
+
+	function rewardAmount() {
+		if (carts.length > 0) {
+			return carts[0].items[1].price;
+		}
+		return 0;
+	}
 </script>
 
 {#snippet tool(product: ProductDB)}
 	<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
 		<label class="flex items-center py-2 text-sm font-medium">
-			<Radio name="selectedProduct" class="w-full">
-				<div class="flex w-full items-center justify-between">
-					<div class="flex items-center">
-						<img
-							src={product.image_primary_url.replace('<SIZE>', '65')}
-							alt="tool"
-							class="rounded-md"
-						/>
-						<a
-							href={`https://www.homedepot.com${product.canonical_url}`}
-							class="mx-2 hover:underline"
-							target="_blank">{product.product_label}</a
-						>
-					</div>
-					{formatCurrency(product.pricing_value)}
-				</div>
-			</Radio>
+			{#if selectProductsMode}
+				<Radio
+					name="selectedProduct"
+					class="w-full"
+					value={product.product_label}
+					bind:group={requiredProduct}
+					disabled={excludedProducts.includes(product.product_label)}
+				>
+					<PromoItem {product} />
+				</Radio>
+			{:else}
+				<input
+					class="peer me-2 h-4 w-4 appearance-none rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800 dark:focus:ring-red-600"
+					type="checkbox"
+					name="excludedProduct"
+					value={product.product_label}
+					bind:group={excludedProducts}
+					disabled={requiredProduct == product.product_label}
+				/>
+				<PromoItem {product} />
+			{/if}
 		</label>
 	</div>
 {/snippet}
 
 <div class="space-y-4">
 	<PromoTitle {promo} />
+
 	<Card size="xl" class="mx-auto">
-		<div class="flex flex-col gap-8">
-			<div>
-				<Heading tag="h5">Select One of the Items Below</Heading>
+		<div class="flex flex-col gap-4">
+			<div class="flex flex-col gap-8">
 				<div>
-					{#each srcProducts as product (product.product_label)}
-						{@render tool(product)}
-					{/each}
+					<Heading tag="h5">Select One of the Items Below</Heading>
+					<SearchInput bind:value={srcProductsFilter} />
+					<ItemScrollBox>
+						{#each srcProducts as product}
+							{#if product.product_label.toLowerCase().includes(srcProductsFilter.toLowerCase())}
+								{@render tool(product)}
+							{/if}
+						{/each}
+					</ItemScrollBox>
 				</div>
+
+				<div>
+					<Heading tag="h5">Or Select One of These Items</Heading>
+					<SearchInput bind:value={tgtProductsFilter} />
+					<ItemScrollBox>
+						{#each tgtProducts as product}
+							{#if product.product_label.toLowerCase().includes(tgtProductsFilter.toLowerCase())}
+								{@render tool(product)}
+							{/if}
+						{/each}
+					</ItemScrollBox>
+				</div>
+
+				<ExcludedProducts bind:selectProductsMode />
 			</div>
 
-			<div>
-				<Heading tag="h5">Or Select One of These Items</Heading>
-				<div>
-					{#each tgtProducts as product (product.product_label)}
-						{@render tool(product)}
-					{/each}
-				</div>
+			<div class="mx-auto flex max-w-md gap-2">
+				<Button color="red" onclick={calculate}>Calculate</Button>
 			</div>
-		</div>
-
-		<div class="mx-auto flex max-w-md gap-2">
-			<Button color="red">Calculate</Button>
 		</div>
 	</Card>
-</div>
 
-<pre class="text-left">
-    {JSON.stringify(promo, null, 4)}
-</pre>
+	<ResultsCard {carts} requiredProducts={[requiredProduct]} {rewardAmount} />
+</div>

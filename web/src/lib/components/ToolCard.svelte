@@ -22,7 +22,7 @@
 					/>
 					{simplifyName(product)}
 				</div>
-				{formatCurrency(product.pricing_value)}
+				{formatCurrency(product.pricing.value)}
 			</div>
 		</a>
 	</div>

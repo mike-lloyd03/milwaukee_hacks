@@ -6,30 +6,29 @@
 	let { data }: { data: PageData } = $props();
 
 	interface Link {
-		name: string;
+		title: string;
 		experience_tag: string;
 		href: string;
 	}
 
+	const filteredTerms = ['gloves', 'vests', 'glasses', 'respirators'];
+
 	const activeLinks: Link[] = data.promos
-		.filter((p) => {
-			return isFuture(p.end_date);
-		})
+		.filter((p) => isFuture(p.end_date))
 		.map((p) => {
 			return {
-				name: p.long_description ?? p.short_description,
+				title: p.long_description ?? p.short_description,
 				experience_tag: p.experience_tag,
 				href: `/promos/${p.promotion_id}`
 			};
-		});
+		})
+		.filter((l) => !filteredTerms.some((t) => l.title.toLowerCase().includes(t)));
 
 	const inactiveLinks: Link[] = data.promos
-		.filter((p) => {
-			return !isFuture(p.end_date);
-		})
+		.filter((p) => !isFuture(p.end_date))
 		.map((p) => {
 			return {
-				name: p.long_description ?? p.short_description,
+				title: p.long_description ?? p.short_description,
 				experience_tag: p.experience_tag,
 				href: `/promos/${p.promotion_id}`
 			};
@@ -41,7 +40,7 @@
 
 	{#if activeLinks.length}
 		<Listgroup active items={activeLinks} let:item class="mx-auto w-2xl">
-			{item.name} ({item.experience_tag})
+			{item.title} ({item.experience_tag})
 		</Listgroup>
 	{/if}
 
@@ -49,7 +48,7 @@
 		<div class="my-16">
 			<Heading tag="h3" class="mb-4">Expired Promos</Heading>
 			<Listgroup active items={inactiveLinks} let:item class="mx-auto w-96">
-				{item.name} ({item.experience_tag})
+				{item.title} ({item.experience_tag})
 			</Listgroup>
 		</div>
 	{/if}

@@ -158,7 +158,7 @@ pub struct SearchParams {
 
 impl SearchParams {
     pub fn to_nav_param(&self) -> String {
-        let mut nav_param = String::from("5yc1vZc");
+        let mut nav_param = String::from("5yc1vZzv");
 
         match &self.department {
             Some(d) => match d {
@@ -217,10 +217,12 @@ struct SearchReport {
     pub start_index: u32,
 }
 
-pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
+pub async fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
     let mut products: Vec<Product> = Vec::new();
     let page_size = 24;
     let mut index = 0;
+
+    let client = reqwest::Client::new();
 
     loop {
         let variables = serde_json::json!({
@@ -239,12 +241,15 @@ pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
             "query": QUERY,
         });
 
-        let resp_str = ureq::post("https://apionline.homedepot.com/federation-gateway/graphql")
+        let resp_str = client
+            .post("https://apionline.homedepot.com/federation-gateway/graphql")
             .header("x-experience-name", "fusion-gm-pip-desktop")
             .header("content-type", "application/json")
-            .send_json(body)?
-            .body_mut()
-            .read_to_string()?;
+            .json(&body)
+            .send()
+            .await?
+            .text()
+            .await?;
 
         let resp: Response =
             serde_json::from_str(&resp_str).context("Failed to parse get_products response")?;
@@ -252,7 +257,11 @@ pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
         match resp.data.search_model {
             Some(mut search_model) if index < search_model.search_report.total_products => {
                 products.append(&mut search_model.products);
-                index += page_size
+                index += page_size;
+                println!(
+                    "Got {index} of {} products",
+                    search_model.search_report.total_products
+                );
             }
             _ => break,
         }

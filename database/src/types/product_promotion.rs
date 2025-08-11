@@ -1,7 +1,7 @@
 use anyhow::Result;
 use sqlx::SqlitePool;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProductPromotionDB {
     pub id: Option<i64>,
     pub product_id: String,

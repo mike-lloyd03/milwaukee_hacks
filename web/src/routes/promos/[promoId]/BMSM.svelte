@@ -36,6 +36,7 @@
 
 			if (first_tier.minPurchaseQuantity && first_tier.maxPurchaseQuantity) {
 				// Item quantity based promo
+				// TODO: There is a bug here where the min and max purchase quantity can be higher than we want our BMSM algorithm running for
 				promo.reward_tiers.forEach((tier) => {
 					if (tier.minPurchaseQuantity) {
 						if (tier.minPurchaseQuantity > maxCart) {
@@ -136,7 +137,7 @@
 	<Label>
 		Min Cart Size
 		<NumberInput onchange={cartSizeRange} bind:value={minCartSize} />
-		<Tooltip>The maximum number of items in the cart. 4-5 is usually a good value.</Tooltip>
+		<Tooltip>The minimum number of items in the cart. 2-4 is usually a good value.</Tooltip>
 	</Label>
 
 	<Label>
@@ -168,7 +169,3 @@
 		<ResultsCard {carts} {requiredProducts} {rewardAmount} />
 	</div>
 </div>
-
-<pre class="text-left">
-    {JSON.stringify(promo, null, 4)}
-</pre>

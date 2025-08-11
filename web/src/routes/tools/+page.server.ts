@@ -1,9 +1,9 @@
 import type { PageServerLoad } from "./$types";
-import type { ProductDB } from "$lib/dbTypes";
+import { getProducts } from "$lib/dbTypes";
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const db = locals.db;
-	const products = db.prepare("select * from products").all() as ProductDB[];
+	const products = getProducts(db);
 
 	return {
 		products,

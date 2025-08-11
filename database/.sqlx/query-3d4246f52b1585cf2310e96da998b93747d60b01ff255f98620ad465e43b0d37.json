@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "delete from products where updated_at is null or updated_at < ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "3d4246f52b1585cf2310e96da998b93747d60b01ff255f98620ad465e43b0d37"
+}

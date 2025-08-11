@@ -1,12 +1,8 @@
 use anyhow::Result;
-use database::now_timestamp;
-use requests::{Brand, Department, SearchParams};
+use database::requests::{self, Brand, Department, SearchParams};
+use database::types::{ProductDB, ProductPromotionDB, Promotion, PromotionDB};
+use database::{config, now_timestamp};
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
-use types::{ProductDB, ProductPromotionDB, Promotion, PromotionDB};
-
-mod config;
-mod requests;
-mod types;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -20,8 +16,8 @@ async fn main() -> Result<()> {
     let search_params = SearchParams {
         department: Some(Department::PowerTools),
         brand: Some(Brand::Milwaukee),
-        buy_more_save_more: false,
-        buy_one_get_one: false,
+        buy_more_save_more: true,
+        buy_one_get_one: true,
         special_buy: false,
     };
 
@@ -37,7 +33,7 @@ async fn main() -> Result<()> {
     let now = now_timestamp();
 
     let mut promos: Vec<Promotion> = Vec::new();
-    let products = requests::get_products(search_params)?;
+    let products = requests::get_products(search_params).await?;
     let mut product_promos_db: Vec<ProductPromotionDB> = Vec::new();
 
     for product in &products {
@@ -57,7 +53,7 @@ async fn main() -> Result<()> {
             .iter()
             .any(|existing_promo| product_promos.contains(existing_promo))
         {
-            match requests::get_promo(&product.id) {
+            match requests::get_promo(&product.id).await {
                 Ok(p) => {
                     println!(
                         "Got promo {}: {}",

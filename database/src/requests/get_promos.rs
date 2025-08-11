@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, Result};
 use serde::Deserialize;
 
 use crate::types::Promotion;
@@ -68,7 +68,7 @@ struct Promotions {
 }
 
 /// Fetches any promotions for the given product item_id
-pub fn get_promo(item_id: &str) -> Result<Promotion> {
+pub async fn get_promo(item_id: &str) -> Result<Promotion> {
     let variables = serde_json::json!({
             "itemId":item_id,
             "pageSize": 48,
@@ -79,17 +79,18 @@ pub fn get_promo(item_id: &str) -> Result<Promotion> {
         "variables": variables,
         "query": QUERY,
     });
-    let resp = ureq::post(
-        "https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts",
-    )
-    .header("x-experience-name", "fusion-gm-pip-desktop")
-    .header("content-type", "application/json")
-    .send_json(body)?
-    .body_mut()
-    .read_json::<Response>()
-    .context(format!(
-        "Failed to parse promotionProducts response for item_id {item_id}",
-    ))?;
+
+    let client = reqwest::Client::new();
+
+    let resp = client
+        .post("https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts")
+        .header("x-experience-name", "fusion-gm-pip-desktop")
+        .header("content-type", "application/json")
+        .json(&body)
+        .send()
+        .await?
+        .json::<Response>()
+        .await?;
 
     match resp
         .data
