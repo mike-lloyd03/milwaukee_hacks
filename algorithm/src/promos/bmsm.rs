@@ -4,12 +4,14 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn bmsm(
-    products: Vec<Product>,
+    products: JsValue,
     min_cart_size: usize,
     max_cart_size: usize,
     min_total: f32,
     required_products: Vec<String>,
 ) -> Vec<Cart> {
+    let products: Vec<Product> = serde_wasm_bindgen::from_value(products).unwrap();
+
     let mut combinations: Vec<Vec<&Product>> = vec![];
 
     for i in min_cart_size..=max_cart_size {

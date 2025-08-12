@@ -7,7 +7,6 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-anyhow = "1.0.99"
 console_error_panic_hook = "0.1.7"
 itertools = "0.14.0"
 serde = { version = "1.0.218", features = ["derive"] }
