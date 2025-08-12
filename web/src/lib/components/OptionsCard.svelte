@@ -2,8 +2,7 @@
 	import { bmsm, Cart } from '$lib/pkg/algorithm';
 	import type { ProductDB } from '$lib/dbTypes';
 	import { Card, Heading, Button, Modal } from 'flowbite-svelte';
-	import { formatCurrency } from '$lib/utils';
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import SearchInput from './SearchInput.svelte';
 	import ItemScrollBox from './ItemScrollBox.svelte';
 	import ExcludedProducts from './ExcludedProducts.svelte';
@@ -17,6 +16,7 @@
 		maxCartSize: number;
 		minCartTotal?: number;
 		options?: Snippet;
+		selected_product_ids?: string[];
 	}
 
 	let {
@@ -26,7 +26,8 @@
 		minCartSize,
 		maxCartSize = $bindable(),
 		minCartTotal = $bindable(),
-		options
+		options,
+		selected_product_ids
 	}: Props = $props();
 
 	let productsFilter = $state('');
@@ -35,6 +36,14 @@
 	let excludedProducts: string[] = $state([]);
 	let optionsOpen = $state(false);
 	let selectProductsMode = $state(true);
+
+	onMount(() => {
+		if (selected_product_ids) {
+			selectedProducts = products
+				.filter((p) => selected_product_ids.includes(p.item_id))
+				.map((p) => p.product_label);
+		}
+	});
 
 	function rowDisabled(productLabel: string): boolean {
 		return (
@@ -51,7 +60,7 @@
 			.map((p: ProductDB) => {
 				return { name: p.product_label, price: p.pricing.value };
 			});
-		console.log('data: ', productData, minCartSize, maxCartSize, minCartTotal, requiredProducts);
+
 		const allCarts = bmsm(
 			productData,
 			minCartSize,
@@ -77,7 +86,7 @@
 									product.product_label
 								)
 									? 'text-gray-500 dark:text-gray-600'
-									: 'text-gray-900 dark:text-gray-300'} "
+									: ''} "
 							>
 								{#if selectProductsMode}
 									<input
@@ -88,6 +97,7 @@
 										bind:group={selectedProducts}
 										disabled={rowDisabled(product.product_label) ||
 											excludedProducts.includes(product.product_label)}
+										checked={selectedProducts.includes(product.item_id)}
 									/>
 								{:else}
 									<input

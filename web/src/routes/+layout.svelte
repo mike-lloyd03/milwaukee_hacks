@@ -10,7 +10,7 @@
 	<title>Milwaukee Hacks</title>
 </svelte:head>
 
-<Navbar>
+<Navbar class="mb-8">
 	<NavBrand href="/">
 		<Logo />
 		<span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white"
@@ -29,6 +29,6 @@
 	</NavUl>
 </Navbar>
 
-<div class="text-center">
+<div class="mb-16 text-center text-gray-900 dark:text-gray-300">
 	{@render children()}
 </div>

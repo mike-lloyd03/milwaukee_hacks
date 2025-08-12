@@ -18,7 +18,7 @@ export function formatPercent(value: number) {
 	return formatter.format(value);
 }
 
-export function simplifyName(product: ProductDB): string {
+export function simplifyName(name: string): string {
 	const removeStr = [
 		"18V",
 		"18-Volt",
@@ -27,8 +27,9 @@ export function simplifyName(product: ProductDB): string {
 		"Cordless",
 		"12V",
 		"12-Volt",
+		"12 Volt",
 	];
-	let newName = product.product_label;
+	let newName = name;
 	for (const s of removeStr) {
 		newName = newName.replaceAll(s, "");
 	}

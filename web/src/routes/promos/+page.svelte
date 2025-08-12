@@ -1,55 +1,41 @@
 <script lang="ts">
-	import { Heading, Listgroup } from 'flowbite-svelte';
+	import { Heading, P } from 'flowbite-svelte';
 	import type { PageData } from './$types';
 	import { isFuture } from '$lib/utils';
+	import PromoListGroup from '$lib/components/PromoListGroup.svelte';
+	import SearchInput from '$lib/components/SearchInput.svelte';
 
 	let { data }: { data: PageData } = $props();
 
-	interface Link {
-		title: string;
-		experience_tag: string;
-		href: string;
-	}
-
+	let promosFilter = $state('');
 	const filteredTerms = ['gloves', 'vests', 'glasses', 'respirators'];
 
-	const activeLinks: Link[] = data.promos
-		.filter((p) => isFuture(p.end_date))
-		.map((p) => {
-			return {
-				title: p.long_description ?? p.short_description,
-				experience_tag: p.experience_tag,
-				href: `/promos/${p.promotion_id}`
-			};
-		})
-		.filter((l) => !filteredTerms.some((t) => l.title.toLowerCase().includes(t)));
+	let promos = data.promos.filter(
+		(l) =>
+			!filteredTerms.some((t) =>
+				(l.long_description ?? l.short_description).toLowerCase().includes(t)
+			)
+	);
 
-	const inactiveLinks: Link[] = data.promos
-		.filter((p) => !isFuture(p.end_date))
-		.map((p) => {
-			return {
-				title: p.long_description ?? p.short_description,
-				experience_tag: p.experience_tag,
-				href: `/promos/${p.promotion_id}`
-			};
-		});
+	let activePromos = promos.filter((p) => isFuture(p.end_date));
+
+	let inactivePromos = promos.filter((p) => !isFuture(p.end_date));
 </script>
 
-<div class="mx-auto my-6">
+<div class="mx-auto space-y-2">
 	<Heading tag="h2" class="mb-4">Promos</Heading>
+	<P class="text-center">All active promotion</P>
 
-	{#if activeLinks.length}
-		<Listgroup active items={activeLinks} let:item class="mx-auto w-2xl">
-			{item.title} ({item.experience_tag})
-		</Listgroup>
+	<SearchInput bind:value={promosFilter} />
+
+	{#if activePromos.length}
+		<PromoListGroup promos={activePromos} searchTerm={promosFilter}></PromoListGroup>
 	{/if}
 
-	{#if inactiveLinks.length}
+	{#if inactivePromos.length}
 		<div class="my-16">
 			<Heading tag="h3" class="mb-4">Expired Promos</Heading>
-			<Listgroup active items={inactiveLinks} let:item class="mx-auto w-96">
-				{item.title} ({item.experience_tag})
-			</Listgroup>
+			<PromoListGroup promos={inactivePromos}></PromoListGroup>
 		</div>
 	{/if}
 </div>

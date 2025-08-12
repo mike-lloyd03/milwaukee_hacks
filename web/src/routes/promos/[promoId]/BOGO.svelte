@@ -1,8 +1,7 @@
 <script lang="ts">
 	import PromoTitle from '$lib/components/PromoTitle.svelte';
 	import type { ProductDB, PromotionDB } from '$lib/dbTypes';
-	import { formatCurrency } from '$lib/utils';
-	import { Button, Card, Heading, Input, Radio } from 'flowbite-svelte';
+	import { Button, Card, Heading, Radio } from 'flowbite-svelte';
 	import { bogo, type Cart } from '$lib/pkg/algorithm';
 	import ResultsCard from '$lib/components/ResultsCard.svelte';
 	import ItemScrollBox from '$lib/components/ItemScrollBox.svelte';
@@ -13,8 +12,9 @@
 	interface Props {
 		promo: PromotionDB;
 		products: ProductDB[];
+		selected_product_ids?: string[];
 	}
-	let { promo, products }: Props = $props();
+	let { promo, products, selected_product_ids }: Props = $props();
 
 	let requiredProduct: string = $state('');
 	let carts: Cart[] = $state([]);
@@ -23,10 +23,18 @@
 	let selectProductsMode = $state(true);
 	let excludedProducts: string[] = $state([]);
 
-	const srcProductIds = promo.eligibility_criteria.filter((ec) => ec.itemGroup.startsWith('SRC'))[0]
-		.itemIds;
-	const tgtProductIds = promo.eligibility_criteria.filter((ec) => ec.itemGroup.startsWith('TGT'))[0]
-		.itemIds;
+	if (selected_product_ids) {
+		requiredProduct =
+			products.find((p) => p.item_id == selected_product_ids[0])?.product_label ?? '';
+	}
+
+	console.log(promo);
+	const srcProductIds = promo.eligibility_criteria.filter((ec) =>
+		ec.item_group.startsWith('SRC')
+	)[0].item_ids;
+	const tgtProductIds = promo.eligibility_criteria.filter((ec) =>
+		ec.item_group.startsWith('TGT')
+	)[0].item_ids;
 
 	let srcProducts = products.filter((p) => srcProductIds.includes(p.item_id));
 	let tgtProducts = products.filter((p) => tgtProductIds.includes(p.item_id));
@@ -61,6 +69,7 @@
 					value={product.product_label}
 					bind:group={requiredProduct}
 					disabled={excludedProducts.includes(product.product_label)}
+					checked={requiredProduct == product.item_id}
 				>
 					<PromoItem {product} />
 				</Radio>
@@ -89,7 +98,7 @@
 					<Heading tag="h5">Select One of the Items Below</Heading>
 					<SearchInput bind:value={srcProductsFilter} />
 					<ItemScrollBox>
-						{#each srcProducts as product}
+						{#each srcProducts as product (product.item_id)}
 							{#if product.product_label.toLowerCase().includes(srcProductsFilter.toLowerCase())}
 								{@render tool(product)}
 							{/if}
@@ -101,7 +110,7 @@
 					<Heading tag="h5">Or Select One of These Items</Heading>
 					<SearchInput bind:value={tgtProductsFilter} />
 					<ItemScrollBox>
-						{#each tgtProducts as product}
+						{#each tgtProducts as product (product.item_id)}
 							{#if product.product_label.toLowerCase().includes(tgtProductsFilter.toLowerCase())}
 								{@render tool(product)}
 							{/if}

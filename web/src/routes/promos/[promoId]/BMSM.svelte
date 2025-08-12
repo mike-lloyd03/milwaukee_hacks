@@ -12,9 +12,10 @@
 	interface Props {
 		promo: PromotionDB;
 		products: ProductDB[];
+		selected_product_ids?: string[];
 	}
 
-	let { promo, products }: Props = $props();
+	let { promo, products, selected_product_ids }: Props = $props();
 
 	let requiredProducts: string[] = $state([]);
 	let carts: Cart[] = $state([]);
@@ -23,7 +24,7 @@
 	let minCartTotal: number = $state(0);
 
 	let productsSimpleName = products.map((p) => {
-		p.product_label = simplifyName(p);
+		p.product_label = simplifyName(p.product_label);
 		return p;
 	});
 
@@ -34,13 +35,13 @@
 		if (promo.reward_tiers) {
 			const first_tier = promo.reward_tiers[0];
 
-			if (first_tier.minPurchaseQuantity && first_tier.maxPurchaseQuantity) {
+			if (first_tier.min_purchase_quantity && first_tier.max_purchase_quantity) {
 				// Item quantity based promo
 				// TODO: There is a bug here where the min and max purchase quantity can be higher than we want our BMSM algorithm running for
 				promo.reward_tiers.forEach((tier) => {
-					if (tier.minPurchaseQuantity) {
-						if (tier.minPurchaseQuantity > maxCart) {
-							maxCart = tier.minPurchaseQuantity;
+					if (tier.min_purchase_quantity) {
+						if (tier.min_purchase_quantity > maxCart) {
+							maxCart = tier.min_purchase_quantity;
 						}
 					}
 				});
@@ -48,12 +49,12 @@
 				minCartSize = maxCart;
 				maxCartSize = maxCart;
 				minCartTotal = minTotal;
-			} else if (first_tier.minPurchaseAmount && first_tier.maxPurchaseAmount) {
+			} else if (first_tier.min_purchase_amount && first_tier.max_purchase_amount) {
 				// Cart total based promo
 				promo.reward_tiers.forEach((tier) => {
-					if (tier.minPurchaseAmount) {
-						if (tier.minPurchaseAmount > minTotal) {
-							minTotal = tier.minPurchaseAmount;
+					if (tier.min_purchase_amount) {
+						if (tier.min_purchase_amount > minTotal) {
+							minTotal = tier.min_purchase_amount;
 						}
 					}
 				});
@@ -71,12 +72,13 @@
 
 		if (promo.reward_tiers) {
 			for (let tier of promo.reward_tiers) {
-				const maxQty = tier.maxPurchaseQuantity;
-				const minQty = tier.minPurchaseQuantity;
-				const maxAmt = tier.maxPurchaseAmount;
-				const minAmt = tier.minPurchaseAmount;
+				const maxQty = tier.max_purchase_quantity;
+				const minQty = tier.min_purchase_quantity;
+				const maxAmt = tier.max_purchase_amount;
+				const minAmt = tier.min_purchase_amount;
 
-				const reward = tier.rewardAmountPerOrder ?? (cart.total * (tier.rewardPercent ?? 0)) / 100;
+				const reward =
+					tier.reward_amount_per_order ?? (cart.total * (tier.reward_percent ?? 0)) / 100;
 
 				if (minQty && maxQty) {
 					if (maxQty == -1 && cartSize >= minQty) {
@@ -165,6 +167,7 @@
 			{maxCartSize}
 			{minCartTotal}
 			{options}
+			{selected_product_ids}
 		/>
 		<ResultsCard {carts} {requiredProducts} {rewardAmount} />
 	</div>

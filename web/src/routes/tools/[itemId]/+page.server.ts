@@ -1,35 +1,35 @@
 import type { PageServerLoad } from "./$types";
-import {
-	getProduct,
-	type ProductPromotionDB,
-	type PromotionDB,
-} from "$lib/dbTypes";
-import { fail } from "@sveltejs/kit";
+import { getProduct, getPromotions, type ProductDB } from "$lib/dbTypes";
+import { error } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	if (!isNaN(Number(params.itemId))) {
-		fail(400, { message: "itemId is not numeric" });
+	if (isNaN(Number(params.itemId))) {
+		return error(400, { message: "itemId is not numeric" });
 	}
 
 	const db = locals.db;
-	const product = getProduct(db, params.itemId);
+	let product: ProductDB;
 
-	const product_promotions = db
-		.prepare("select * from product_promotions where product_id = ?")
-		.all(params.itemId) as ProductPromotionDB[];
+	try {
+		product = getProduct(db, params.itemId);
+	} catch (e) {
+		if (typeof e == "string") {
+			if (e.includes("not found")) {
+				error(404, "Product not found");
+			}
+		} else {
+			throw e;
+		}
+	}
 
-	const product_promotion_ids = product_promotions.map((p) => p.promotion_id);
+	const product_promotion_ids = product!.pricing.conditional_promotions
+		.filter((p) => p.promotion_id != undefined)
+		.map((p) => p.promotion_id!.toString());
 
-	let statement = "select * from promotions where promotion_id in (";
-	statement += product_promotion_ids.map(() => "?").join(", ");
-	statement += ")";
-
-	const promos = db
-		.prepare(statement)
-		.all(product_promotion_ids) as PromotionDB[];
+	const promos = getPromotions(db, product_promotion_ids);
 
 	return {
-		product,
+		product: product!,
 		promos,
 	};
 };

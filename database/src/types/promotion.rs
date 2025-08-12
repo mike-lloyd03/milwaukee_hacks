@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Promotion {
     pub promotion_id: String,
     // This field is added
@@ -21,14 +21,14 @@ pub struct Promotion {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Description {
     pub long_desc: Option<String>,
     pub short_desc: String,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct EligibilityCriterion {
     pub item_group: String,
     pub categories: Vec<String>,
@@ -38,20 +38,20 @@ pub struct EligibilityCriterion {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Dates {
     pub end: String,
     pub start: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Reward {
     pub tiers: Vec<RewardTier>,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct RewardTier {
     pub max_allowed_reward_amount: Option<f32>,
     pub max_purchase_quantity: Option<f32>,

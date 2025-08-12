@@ -20,7 +20,7 @@
 						alt="tool"
 						class="rounded-md"
 					/>
-					{simplifyName(product)}
+					{simplifyName(product.product_label)}
 				</div>
 				{formatCurrency(product.pricing.value)}
 			</div>

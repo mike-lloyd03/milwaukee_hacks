@@ -1,3 +1,4 @@
+import { error } from "@sveltejs/kit";
 import { type Database } from "better-sqlite3";
 
 export interface ProductDB {
@@ -47,24 +48,40 @@ export function getProducts(db: Database, ids?: string[]) {
 
 	query += " order by json_extract(pricing, '$.pricing.value')";
 
-	const promos = db.prepare(query).all(ids ?? {}) as ProductDB[];
+	const result = db.prepare(query).all(ids ?? {}) as unknown[];
+	const products = result.map((promo) => objToProduct(promo));
 
-	return promos.map((p) => {
-		if (typeof p.pricing == "string") {
-			p.pricing = JSON.parse(p.pricing);
-		}
-		return p;
-	});
+	return products;
 }
 
 export function getProduct(db: Database, id: string) {
-	const promo = db
+	const product = db
 		.prepare("select * from products where item_id = ?")
-		.get(id) as ProductDB;
-	if (typeof promo.pricing == "string") {
-		promo.pricing = JSON.parse(promo.pricing);
+		.get(id);
+
+	return objToProduct(product);
+}
+
+function objToProduct(obj: unknown): ProductDB {
+	if (obj == undefined) {
+		throw "product not found";
 	}
-	return promo;
+
+	const product = obj as ProductDB;
+
+	if (typeof product.pricing == "string") {
+		product.pricing = JSON.parse(product.pricing);
+	}
+
+	if (typeof product.image_primary_sizes == "string") {
+		product.image_primary_sizes = JSON.parse(product.image_primary_sizes);
+	}
+
+	if (typeof product.image_secondary_sizes == "string") {
+		product.image_secondary_sizes = JSON.parse(product.image_secondary_sizes);
+	}
+
+	return product;
 }
 
 export interface PromotionDB {
@@ -95,27 +112,68 @@ export interface PromotionDB {
 }
 
 export interface RewardTier {
-	maxAllowedRewardAmount?: number;
-	maxPurchaseQuantity?: number;
-	minPurchaseQuantity?: number;
-	maxPurchaseAmount?: number;
-	minPurchaseAmount?: number;
-	rewardAmountPerItem?: number;
-	rewardAmountPerOrder?: number;
-	rewardFixedPrice?: number;
-	rewardPercent?: number;
+	max_allowed_reward_amount?: number;
+	max_purchase_quantity?: number;
+	min_purchase_quantity?: number;
+	max_purchase_amount?: number;
+	min_purchase_amount?: number;
+	reward_amount_per_item?: number;
+	reward_amount_per_order?: number;
+	reward_fixed_price?: number;
+	reward_percent?: number;
 }
 
 export interface EligibilityCriterion {
-	itemGroup: string;
+	item_group: string;
 	categories: string[];
-	itemIds: string;
-	minPurchaseAmount?: number;
-	minPurchaseQuantity?: number;
+	item_ids: string;
+	min_purchase_amount?: number;
+	min_purchase_quantity?: number;
 }
 
-export interface ProductPromotionDB {
-	id: number;
-	product_id: string;
-	promotion_id: string;
+export function getPromotions(db: Database, ids?: string[]): PromotionDB[] {
+	let query = "select * from promotions";
+
+	if (ids) {
+		query += " where promotion_id in (";
+		query += ids.map(() => "?").join(", ");
+		query += ")";
+	}
+
+	const result = db.prepare(query).all(ids ?? {}) as unknown[];
+	const promos = result.map((promo) => objToPromo(promo));
+
+	return promos;
+}
+
+export function getPromotion(db: Database, id: string): PromotionDB {
+	const promo = db
+		.prepare("select * from promotions where promotion_id = ?")
+		.get(id);
+
+	return objToPromo(promo);
+}
+
+function objToPromo(obj: unknown): PromotionDB {
+	if (obj == undefined) {
+		throw "promotion not found";
+	}
+
+	const promo = obj as PromotionDB;
+
+	if (promo.reward_tiers) {
+		promo.reward_tiers = JSON.parse(promo.reward_tiers.toString());
+	}
+
+	if (promo.eligibility_criteria) {
+		promo.eligibility_criteria = JSON.parse(
+			promo.eligibility_criteria.toString(),
+		);
+	}
+
+	if (promo.item_ids) {
+		promo.item_ids = JSON.parse(promo.item_ids);
+	}
+
+	return promo;
 }

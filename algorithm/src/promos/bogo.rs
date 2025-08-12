@@ -2,10 +2,11 @@ use crate::types::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub fn bogo(src_products: JsValue, tgt_products: JsValue, required_product: String) -> Cart {
-    let src_products: Vec<Product> = serde_wasm_bindgen::from_value(src_products).unwrap();
-    let tgt_products: Vec<Product> = serde_wasm_bindgen::from_value(tgt_products).unwrap();
-
+pub fn bogo(
+    src_products: Vec<Product>,
+    tgt_products: Vec<Product>,
+    required_product: String,
+) -> Cart {
     let items: Vec<Product> = vec![
         get_product_or_required(src_products, &required_product, true),
         get_product_or_required(tgt_products, &required_product, false),
@@ -58,7 +59,7 @@ mod tests {
 
     #[wasm_bindgen_test]
     fn test_get_product_or_required() {
-        let mut products = vec![
+        let products = vec![
             Product {
                 name: "product1".to_string(),
                 price: 10.0,
@@ -73,7 +74,7 @@ mod tests {
             },
         ];
 
-        let mut required_product = "product7";
+        let required_product = "product7";
 
         let mut expect = get_product_or_required(products.clone(), required_product, true);
 

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{types::Json, SqlitePool};
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Product {
     #[serde(rename = "itemId")]
     pub id: String,
@@ -14,7 +14,7 @@ pub struct Product {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Identifiers {
     pub item_id: String,
     pub brand_name: Option<String>,
@@ -24,7 +24,7 @@ pub struct Identifiers {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Pricing {
     pub value: f32,
     pub original: f32,
@@ -41,7 +41,7 @@ pub struct Media {
 }
 
 #[derive(Debug, Default, Clone, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Image {
     pub url: String,
     pub sizes: Vec<String>,
@@ -49,7 +49,7 @@ pub struct Image {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct ProductPromotion {
     pub promotion_tag: Option<String>,
     pub r#type: Option<String>,
@@ -64,7 +64,7 @@ pub struct ProductPromotion {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct ConditionalPromotion {
     pub promotion_id: Option<u32>,
 }

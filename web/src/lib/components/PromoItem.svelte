@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { ProductDB } from '$lib/dbTypes';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, simplifyName } from '$lib/utils';
 
 	interface Props {
 		product: ProductDB;
@@ -15,7 +15,7 @@
 		<a
 			href={`https://www.homedepot.com${product.canonical_url}`}
 			class="mx-2 hover:underline"
-			target="_blank">{product.product_label}</a
+			target="_blank">{simplifyName(product.product_label)}</a
 		>
 	</div>
 	{formatCurrency(product.pricing.value)}
