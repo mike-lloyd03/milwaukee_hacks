@@ -7,11 +7,11 @@
 	import ResultsCard from '$lib/components/ResultsCard.svelte';
 	import PromoTitle from '$lib/components/PromoTitle.svelte';
 	import { onMount } from 'svelte';
-	import type { ProductDB, PromotionDB } from '$lib/dbTypes';
+	import type { Product, Promotion } from '$lib/types';
 
 	interface Props {
-		promo: PromotionDB;
-		products: ProductDB[];
+		promo: Promotion;
+		products: Product[];
 		selected_product_ids?: string[];
 	}
 

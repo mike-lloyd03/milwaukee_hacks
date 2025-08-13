@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PromoTitle from '$lib/components/PromoTitle.svelte';
-	import type { ProductDB, PromotionDB } from '$lib/dbTypes';
+	import type { Product, Promotion } from '$lib/types';
 	import { Button, Card, Heading, Radio } from 'flowbite-svelte';
 	import { bogo, type Cart } from '$lib/pkg/algorithm';
 	import ResultsCard from '$lib/components/ResultsCard.svelte';
@@ -10,8 +10,8 @@
 	import PromoItem from '$lib/components/PromoItem.svelte';
 
 	interface Props {
-		promo: PromotionDB;
-		products: ProductDB[];
+		promo: Promotion;
+		products: Product[];
 		selected_product_ids?: string[];
 	}
 	let { promo, products, selected_product_ids }: Props = $props();
@@ -28,7 +28,6 @@
 			products.find((p) => p.item_id == selected_product_ids[0])?.product_label ?? '';
 	}
 
-	console.log(promo);
 	const srcProductIds = promo.eligibility_criteria.filter((ec) =>
 		ec.item_group.startsWith('SRC')
 	)[0].item_ids;
@@ -59,7 +58,7 @@
 	}
 </script>
 
-{#snippet tool(product: ProductDB)}
+{#snippet tool(product: Product)}
 	<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
 		<label class="flex items-center py-2 text-sm font-medium">
 			{#if selectProductsMode}

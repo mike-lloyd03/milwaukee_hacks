@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { PromotionDB } from '$lib/dbTypes';
+	import type { Promotion } from '$lib/types';
 	import { Listgroup } from 'flowbite-svelte';
 
 	interface Props {
-		promos: PromotionDB[];
+		promos: Promotion[];
 		includeExperienceTag?: boolean;
 		selectedProduct?: string;
 		searchTerm?: string;

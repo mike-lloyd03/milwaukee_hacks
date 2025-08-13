@@ -4,37 +4,37 @@ mod types;
 #[cfg(test)]
 mod tests {
     use crate::promos::bogo::bogo;
-    use crate::types::{Cart, Product};
+    use crate::types::{Cart, ProductAlgo};
 
     use wasm_bindgen_test::*;
 
     #[wasm_bindgen_test]
     fn test_bogo() {
         let mut src_products = vec![
-            Product {
+            ProductAlgo {
                 name: "product1".to_string(),
                 price: 10.0,
             },
-            Product {
+            ProductAlgo {
                 name: "product2".to_string(),
                 price: 20.0,
             },
-            Product {
+            ProductAlgo {
                 name: "product3".to_string(),
                 price: 30.0,
             },
         ];
 
         let mut tgt_products = vec![
-            Product {
+            ProductAlgo {
                 name: "product4".to_string(),
                 price: 40.0,
             },
-            Product {
+            ProductAlgo {
                 name: "product5".to_string(),
                 price: 50.0,
             },
-            Product {
+            ProductAlgo {
                 name: "product6".to_string(),
                 price: 60.0,
             },
@@ -49,43 +49,43 @@ mod tests {
         assert_eq!(expect, got);
 
         src_products = vec![
-            Product {
+            ProductAlgo {
                 name: "SAWZALL Metal Cutting Bi-Metal Reciprocating Blade Set (16 Piece)"
                     .to_string(),
                 price: 27.97,
             },
-            Product {
+            ProductAlgo {
                 name:
                     "SAWZALL Wood and Metal Cutting Bi-Metal Reciprocating Saw Blade Set (10-Piece)"
                         .to_string(),
                 price: 20.68,
             },
-            Product {
+            ProductAlgo {
                 name:
                     "SAWZALL Demolition Nail-Embedded Wood and Metal Cutting Bi-Metal Reciprocating Saw Blade Set (13 Piece)"
                         .to_string(),
                 price: 25.97,
             },
-            Product {
+            ProductAlgo {
                 name: "M18 FUEL 18V Lith-Ion Brushless Cordless Combo Kit (5-Tool) w/ Two 5.0 Ah Batteries, 1 Charger, & SAWZALL Blade Set".to_string(),
                 price: 669.0,
             },
-            Product {
+            ProductAlgo {
                 name: "M18 18-Volt Lith-Ion Cordless Combo Kit 9-Tool w/ 2-Batteries, Charger, & SAWZALL Blade Set".to_string(),
                 price: 619.0,
             },
         ];
 
         tgt_products = vec![
-            Product {
+            ProductAlgo {
                 name: "6 in. 18 TPI Medium Metal Cutting SAWZALL Reciprocating Saw Blades (5-Pack)".to_string(),
                 price: 13.47,
             },
-            Product {
+            ProductAlgo {
                 name: "6 in. 5 TPI Thin Kerf Wood Cutting BiMetal SAWZALL Reciprocating Saw Blades (5-Pack)".to_string(),
                 price: 15.09,
             },
-            Product {
+            ProductAlgo {
                 name: "9 in. 10 TPI TORCH Thick Metal Cutting SAWZALL Reciprocating Saw Blades (5-Pack)".to_string(),
                 price: 15.97,
             },

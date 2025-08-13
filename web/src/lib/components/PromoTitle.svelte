@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { PromotionDB } from '$lib/dbTypes';
+	import type { Promotion } from '$lib/types';
 	import { Heading } from 'flowbite-svelte';
 
-	const { promo }: { promo: PromotionDB } = $props();
+	const { promo }: { promo: Promotion } = $props();
 </script>
 
 <Heading tag="h4">{promo.long_description ?? promo.short_description}</Heading>

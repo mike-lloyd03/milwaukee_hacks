@@ -1,5 +1,4 @@
-import type { ProductDB } from "./dbTypes";
-import type { Product } from "./pkg/algorithm";
+import type { ProductAlgo } from "./pkg/algorithm";
 
 export function formatCurrency(value: number) {
 	const formatter = new Intl.NumberFormat("en-US", {
@@ -40,8 +39,8 @@ export function simplifyName(name: string): string {
 	return newName;
 }
 
-export function uniqueProducts(l: Product[]): Product[] {
-	const r: Product[] = [];
+export function uniqueProducts(l: ProductAlgo[]): ProductAlgo[] {
+	const r: ProductAlgo[] = [];
 	for (const i of l) {
 		if (!r.map((p) => p.name).includes(i.name)) {
 			r.push(i);

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Cart, Product } from '$lib/pkg/algorithm';
+	import type { Cart, ProductAlgo } from '$lib/pkg/algorithm';
 	import InformationCircle from '$lib/svg/InformationCircle.svelte';
 	import { formatCurrency, formatPercent, simplifyName, uniqueProducts } from '$lib/utils';
 	import { P, Card, Heading, Button, Tooltip } from 'flowbite-svelte';
@@ -24,7 +24,7 @@
 		}
 	}
 
-	function calculatePromoPrice(cart: Cart, product: Product): number {
+	function calculatePromoPrice(cart: Cart, product: ProductAlgo): number {
 		const promoPrice = (1 - rewardAmount(cart) / cart.total) * product.price;
 		return promoPrice;
 	}

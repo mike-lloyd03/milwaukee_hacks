@@ -3,13 +3,13 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(getter_with_clone)]
 #[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize, Serialize)]
-pub struct Product {
+pub struct ProductAlgo {
     pub name: String,
     pub price: f32,
 }
 
 #[wasm_bindgen]
-impl Product {
+impl ProductAlgo {
     #[wasm_bindgen(constructor)]
     pub fn new(name: String, price: f32) -> Self {
         Self { name, price }
@@ -19,14 +19,14 @@ impl Product {
 #[wasm_bindgen(getter_with_clone)]
 #[derive(Debug, Clone, PartialEq, PartialOrd, Deserialize, Serialize)]
 pub struct Cart {
-    pub items: Vec<Product>,
+    pub items: Vec<ProductAlgo>,
     pub total: f32,
 }
 
 #[wasm_bindgen]
 impl Cart {
     #[wasm_bindgen(constructor)]
-    pub fn new(items: Vec<Product>, total: f32) -> Self {
+    pub fn new(items: Vec<ProductAlgo>, total: f32) -> Self {
         Self { items, total }
     }
 }

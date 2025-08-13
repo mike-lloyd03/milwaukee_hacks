@@ -1,5 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import { getProducts, getPromotion, type PromotionDB } from "$lib/dbTypes";
+import { getProducts, getPromotion, type Promotion } from "$lib/types";
 import { error } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	}
 
 	const db = locals.db;
-	let promo: PromotionDB;
+	let promo: Promotion;
 
 	try {
 		promo = getPromotion(db, params.promoId);

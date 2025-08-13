@@ -3,10 +3,10 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn bogo(src_products: JsValue, tgt_products: JsValue, required_product: String) -> Cart {
-    let src_products: Vec<Product> = serde_wasm_bindgen::from_value(src_products).unwrap();
-    let tgt_products: Vec<Product> = serde_wasm_bindgen::from_value(tgt_products).unwrap();
+    let src_products: Vec<ProductAlgo> = serde_wasm_bindgen::from_value(src_products).unwrap();
+    let tgt_products: Vec<ProductAlgo> = serde_wasm_bindgen::from_value(tgt_products).unwrap();
 
-    let items: Vec<Product> = vec![
+    let items: Vec<ProductAlgo> = vec![
         get_product_or_required(src_products, &required_product, true),
         get_product_or_required(tgt_products, &required_product, false),
     ]
@@ -21,15 +21,15 @@ pub fn bogo(src_products: JsValue, tgt_products: JsValue, required_product: Stri
 
 // Returns the cheapest (or most expensive) product in the vec or the one that matches the `required_product`
 fn get_product_or_required(
-    products: Vec<Product>,
+    products: Vec<ProductAlgo>,
     required_product: &str,
     cheapest: bool,
-) -> Option<Product> {
+) -> Option<ProductAlgo> {
     if products.is_empty() {
         return None;
     }
 
-    let mut cheapest_product: Option<Product> = None;
+    let mut cheapest_product: Option<ProductAlgo> = None;
 
     for product in products {
         if product.name == required_product {
@@ -59,15 +59,15 @@ mod tests {
     #[wasm_bindgen_test]
     fn test_get_product_or_required() {
         let products = vec![
-            Product {
+            ProductAlgo {
                 name: "product1".to_string(),
                 price: 10.0,
             },
-            Product {
+            ProductAlgo {
                 name: "product2".to_string(),
                 price: 20.0,
             },
-            Product {
+            ProductAlgo {
                 name: "product3".to_string(),
                 price: 30.0,
             },

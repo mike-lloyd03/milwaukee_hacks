@@ -1,7 +1,6 @@
-import { error } from "@sveltejs/kit";
 import { type Database } from "better-sqlite3";
 
-export interface ProductDB {
+export interface Product {
 	item_id: string;
 	brand_name: string;
 	product_type: string;
@@ -62,12 +61,12 @@ export function getProduct(db: Database, id: string) {
 	return objToProduct(product);
 }
 
-function objToProduct(obj: unknown): ProductDB {
+function objToProduct(obj: unknown): Product {
 	if (obj == undefined) {
 		throw "product not found";
 	}
 
-	const product = obj as ProductDB;
+	const product = obj as Product;
 
 	if (typeof product.pricing == "string") {
 		product.pricing = JSON.parse(product.pricing);
@@ -84,7 +83,7 @@ function objToProduct(obj: unknown): ProductDB {
 	return product;
 }
 
-export interface PromotionDB {
+export interface Promotion {
 	promotion_id: string;
 	name: string;
 	item_id: string;
@@ -131,7 +130,7 @@ export interface EligibilityCriterion {
 	min_purchase_quantity?: number;
 }
 
-export function getPromotions(db: Database, ids?: string[]): PromotionDB[] {
+export function getPromotions(db: Database, ids?: string[]): Promotion[] {
 	let query = "select * from promotions";
 
 	if (ids) {
@@ -146,7 +145,7 @@ export function getPromotions(db: Database, ids?: string[]): PromotionDB[] {
 	return promos;
 }
 
-export function getPromotion(db: Database, id: string): PromotionDB {
+export function getPromotion(db: Database, id: string): Promotion {
 	const promo = db
 		.prepare("select * from promotions where promotion_id = ?")
 		.get(id);
@@ -154,12 +153,12 @@ export function getPromotion(db: Database, id: string): PromotionDB {
 	return objToPromo(promo);
 }
 
-function objToPromo(obj: unknown): PromotionDB {
+function objToPromo(obj: unknown): Promotion {
 	if (obj == undefined) {
 		throw "promotion not found";
 	}
 
-	const promo = obj as PromotionDB;
+	const promo = obj as Promotion;
 
 	if (promo.reward_tiers) {
 		promo.reward_tiers = JSON.parse(promo.reward_tiers.toString());

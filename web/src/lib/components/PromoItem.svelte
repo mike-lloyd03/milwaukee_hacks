@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { ProductDB } from '$lib/dbTypes';
+	import type { Product } from '$lib/types';
 	import { formatCurrency, simplifyName } from '$lib/utils';
 
 	interface Props {
-		product: ProductDB;
+		product: Product;
 	}
 
 	let { product }: Props = $props();

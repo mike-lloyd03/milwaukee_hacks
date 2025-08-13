@@ -1,5 +1,5 @@
 import type { PageServerLoad } from "./$types";
-import { getProduct, getPromotions, type ProductDB } from "$lib/dbTypes";
+import { getProduct, getPromotions, type Product } from "$lib/types";
 import { error } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	}
 
 	const db = locals.db;
-	let product: ProductDB;
+	let product: Product;
 
 	try {
 		product = getProduct(db, params.itemId);

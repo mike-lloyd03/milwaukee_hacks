@@ -10,9 +10,9 @@ pub fn bmsm(
     min_total: f32,
     required_products: Vec<String>,
 ) -> Vec<Cart> {
-    let products: Vec<Product> = serde_wasm_bindgen::from_value(products).unwrap();
+    let products: Vec<ProductAlgo> = serde_wasm_bindgen::from_value(products).unwrap();
 
-    let mut combinations: Vec<Vec<&Product>> = vec![];
+    let mut combinations: Vec<Vec<&ProductAlgo>> = vec![];
 
     for i in min_cart_size..=max_cart_size {
         combinations.append(&mut products.iter().combinations_with_replacement(i).collect())

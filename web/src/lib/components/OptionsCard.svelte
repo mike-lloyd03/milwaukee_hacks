@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { bmsm, Cart } from '$lib/pkg/algorithm';
-	import type { ProductDB } from '$lib/dbTypes';
+	import type { Product } from '$lib/types';
 	import { Card, Heading, Button, Modal } from 'flowbite-svelte';
 	import { onMount, type Snippet } from 'svelte';
 	import SearchInput from './SearchInput.svelte';
@@ -9,7 +9,7 @@
 	import PromoItem from './PromoItem.svelte';
 
 	interface Props {
-		products: ProductDB[];
+		products: Product[];
 		requiredProducts: string[];
 		carts: Cart[];
 		minCartSize: number;
@@ -57,7 +57,7 @@
 		requiredProducts = selectedProducts;
 		const productData = products
 			.filter((p) => !excludedProducts.includes(p.product_label))
-			.map((p: ProductDB) => {
+			.map((p: Product) => {
 				return { name: p.product_label, price: p.pricing.value };
 			});
 
