@@ -26,8 +26,8 @@ pub struct Identifiers {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct Pricing {
-    pub value: f32,
-    pub original: f32,
+    pub value: Option<f32>,
+    pub original: Option<f32>,
     pub promotion: ProductPromotion,
     pub conditional_promotions: Vec<ConditionalPromotion>,
     pub message: Option<String>,
@@ -45,7 +45,7 @@ pub struct Media {
 pub struct Image {
     pub url: String,
     pub sizes: Vec<String>,
-    pub sub_type: String,
+    pub sub_type: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,9 +53,9 @@ pub struct Image {
 pub struct ProductPromotion {
     pub promotion_tag: Option<String>,
     pub r#type: Option<String>,
-    pub description: Option<String>,
-    pub dollar_off: f32,
-    pub percentage_off: f32,
+    pub description: Option<Description>,
+    pub dollar_off: Option<f32>,
+    pub percentage_off: Option<f32>,
     pub savings_center: Option<String>,
     pub savings_center_promos: Option<String>,
     pub special_buy_savings: Option<String>,
@@ -67,6 +67,13 @@ pub struct ProductPromotion {
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct ConditionalPromotion {
     pub promotion_id: Option<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all(deserialize = "camelCase"))]
+pub struct Description {
+    pub short_desc: Option<String>,
+    pub long_desc: Option<String>,
 }
 
 #[derive(Debug)]
@@ -90,9 +97,9 @@ impl From<Product> for ProductDB {
         let mut secondary_image = Image::default();
 
         for image in from_val.media.images {
-            if image.sub_type == "PRIMARY" {
+            if image.sub_type == Some("PRIMARY".to_string()) {
                 primary_image = image
-            } else if image.sub_type == "SECONDARY" {
+            } else if image.sub_type == Some("SECONDARY".to_string()) {
                 secondary_image = image
             }
         }
@@ -159,6 +166,17 @@ impl ProductDB {
         .execute(pool)
         .await?;
         Ok(())
+    }
+
+    pub async fn check_exists(pool: &SqlitePool, item_id: &str) -> Result<bool> {
+        match sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM products WHERE item_id = $1)")
+            .bind(item_id)
+            .fetch_one(pool)
+            .await?
+        {
+            1 => Ok(true),
+            _ => Ok(false),
+        }
     }
 
     pub async fn delete_all_before(pool: &SqlitePool, timestamp: u32) -> Result<()> {

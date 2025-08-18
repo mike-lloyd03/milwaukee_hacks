@@ -3,10 +3,17 @@
 	import { Heading, P } from 'flowbite-svelte';
 	import type { PageData } from './$types';
 	import SearchInput from '$lib/components/SearchInput.svelte';
+	import { Fzf } from 'fzf';
+	import { simplifyName } from '$lib/utils';
 
 	let { data }: { data: PageData } = $props();
 
 	let productsFilter = $state('');
+
+	const productsFzf = new Fzf(data.products, {
+		selector: (item) => simplifyName(item.product_label)
+	});
+	const results = $derived(productsFzf.find(productsFilter));
 </script>
 
 <div class="space-y-2">
@@ -16,12 +23,14 @@
 	<SearchInput bind:value={productsFilter} />
 
 	<ul>
-		{#each data.products as product (product.item_id)}
-			{#if product.product_label.toLowerCase().includes(productsFilter.toLowerCase())}
-				<li>
-					<ToolCard {product} link="/tools/{product.item_id}" />
-				</li>
-			{/if}
+		{#each results as result (result.item.item_id)}
+			<li>
+				<ToolCard
+					product={result.item}
+					link="/tools/{result.item.item_id}"
+					hlIndices={result.positions}
+				/>
+			</li>
 		{/each}
 	</ul>
 </div>

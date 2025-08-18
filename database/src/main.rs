@@ -1,5 +1,5 @@
 use anyhow::Result;
-use database::requests::{self, Brand, Department, SearchParams};
+use database::requests::{self, get_product, Brand, Department, SearchParams};
 use database::types::{ProductDB, Promotion, PromotionDB};
 use database::{config, now_timestamp};
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
@@ -36,8 +36,6 @@ async fn main() -> Result<()> {
     let products = requests::get_products(search_params).await?;
 
     for product in &products {
-        println!("Got product {}", product.id);
-
         let product_promos: Vec<String> = product
             .pricing
             .conditional_promotions
@@ -62,6 +60,7 @@ async fn main() -> Result<()> {
                             .clone()
                             .unwrap_or(p.description.short_desc.clone())
                     );
+
                     promos.push(p);
                 }
                 Err(e) => {
@@ -80,6 +79,14 @@ async fn main() -> Result<()> {
     }
 
     for promo in promos {
+        // Some promos have items in them which are not fetched by the earlier product
+        // search call
+        for ec in promo.eligibility_criteria.iter() {
+            for item_id in ec.item_ids.iter() {
+                fetch_product_if_not_exists(&pool, item_id).await?;
+            }
+        }
+
         let promo_db: PromotionDB = promo.into();
         promo_db.create(&pool).await?;
     }
@@ -87,5 +94,16 @@ async fn main() -> Result<()> {
     ProductDB::delete_all_before(&pool, now).await?;
     PromotionDB::delete_all_before(&pool, now).await?;
 
+    Ok(())
+}
+
+async fn fetch_product_if_not_exists(pool: &SqlitePool, item_id: &str) -> Result<()> {
+    let exists = ProductDB::check_exists(pool, item_id).await?;
+    if !exists {
+        println!("Promo item {item_id} missing from DB. Fetching...");
+        let product = get_product(item_id).await?;
+        let product_db: ProductDB = product.into();
+        product_db.create(pool).await?;
+    }
     Ok(())
 }

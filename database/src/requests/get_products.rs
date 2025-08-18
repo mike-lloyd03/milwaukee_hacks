@@ -1,10 +1,10 @@
 use anyhow::{Context, Result};
 use serde::Deserialize;
 
-use crate::types::Product;
+use crate::{requests::STORE_ID, types::Product};
 
 const QUERY: &str = r#"
-query searchModel($startIndex: Int, $pageSize: Int, $orderBy: ProductSort, $filter: ProductFilter, $navParam: String) {
+query searchModel($startIndex: Int, $pageSize: Int, $orderBy: ProductSort, $filter: ProductFilter, $navParam: String, $storeId: String) {
   searchModel(navParam: $navParam) {
     products(
       startIndex: $startIndex
@@ -35,7 +35,7 @@ query searchModel($startIndex: Int, $pageSize: Int, $orderBy: ProductSort, $filt
           sizes
         }
       }
-      pricing(storeId: null) {
+      pricing(storeId: $storeId) {
         value
         original
         preferredPriceFlag
@@ -232,7 +232,8 @@ pub async fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
             "order": "DESC"
           },
           "pageSize": page_size,
-          "startIndex": index
+          "startIndex": index,
+          "storeId": STORE_ID
         });
 
         let body = serde_json::json!({
@@ -252,7 +253,7 @@ pub async fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
             .await?;
 
         let resp: Response =
-            serde_json::from_str(&resp_str).context("Failed to parse get_products response")?;
+            serde_json::from_str(&resp_str).context("Failed to parse get_product response")?;
 
         match resp.data.search_model {
             Some(mut search_model) if index < search_model.search_report.total_products => {

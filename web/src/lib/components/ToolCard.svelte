@@ -5,10 +5,25 @@
 	interface Props {
 		product: Product;
 		link: string;
+		hlIndices?: Set<number>;
 	}
 
-	const { product, link }: Props = $props();
+	const { product, link, hlIndices }: Props = $props();
 </script>
+
+{#snippet hlChars()}
+	{#if hlIndices}
+		{#each simplifyName(product.product_label) as char, i (i)}
+			{#if hlIndices.has(i)}
+				<b>{char}</b>
+			{:else}
+				{char}
+			{/if}
+		{/each}
+	{:else}
+		{simplifyName(product.product_label)}
+	{/if}
+{/snippet}
 
 <div>
 	<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
@@ -20,7 +35,8 @@
 						alt="tool"
 						class="rounded-md"
 					/>
-					{simplifyName(product.product_label)}
+					{@render hlChars()}
+					<!-- {simplifyName(product.product_label)} -->
 				</div>
 				{formatCurrency(product.pricing.value)}
 			</div>
