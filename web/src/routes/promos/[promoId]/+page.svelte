@@ -3,6 +3,8 @@
 	import type { PageData } from './$types';
 	import Bmsm from './BMSM.svelte';
 	import Bogo from './BOGO.svelte';
+	import { PUBLIC_ENV } from '$env/static/public';
+
 	let { data }: { data: PageData } = $props();
 
 	const selected_product_ids = page.url.searchParams.get('products')?.split(',');
@@ -16,6 +18,8 @@
 	{/if}
 </div>
 
-<pre class="text-left">
-    {JSON.stringify(data.promo, null, 4)}
-</pre>
+{#if PUBLIC_ENV == 'dev'}
+	<pre class="text-left">
+        {JSON.stringify(data.promo, null, 4)}
+    </pre>
+{/if}

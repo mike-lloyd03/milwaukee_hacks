@@ -26,7 +26,7 @@
 	<Heading tag="h2" class="mb-4">Promos</Heading>
 	<P class="text-center">All active promotions ({activePromos.length})</P>
 
-	<SearchInput bind:value={promosFilter} />
+	<SearchInput bind:value={promosFilter} centered />
 
 	{#if activePromos.length}
 		<PromoListGroup promos={activePromos} searchTerm={promosFilter} includeExperienceTag

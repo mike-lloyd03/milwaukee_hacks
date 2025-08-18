@@ -31,7 +31,7 @@
 </script>
 
 <Card size="xl" class="mx-auto">
-	<div class="flex justify-center">
+	<div class="flex items-center justify-center gap-1">
 		<Heading tag="h5" class="w-fit">
 			{#if carts.length > 1}
 				Possible Carts
@@ -81,7 +81,7 @@
 				</div>
 
 				<div>
-					<div class="flex justify-center">
+					<div class="flex items-center justify-center gap-1">
 						<Heading tag="h6" class="w-fit">Estimated Prices After Hack</Heading>
 						<InformationCircle />
 						<Tooltip>The price(s) of the products(s) after returning the undesired items</Tooltip>

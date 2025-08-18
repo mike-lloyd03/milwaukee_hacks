@@ -105,9 +105,9 @@
 	<Card size="xl" class="mx-auto">
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-8">
-				<div>
+				<div class="space-y-3">
 					<Heading tag="h5">Select One of the Items Below</Heading>
-					<SearchInput bind:value={srcProductsFilter} />
+					<SearchInput bind:value={srcProductsFilter} centered />
 					<ItemScrollBox>
 						{#each srcResults as result (result.item.item_id)}
 							{#if result.item.product_label
@@ -119,9 +119,9 @@
 					</ItemScrollBox>
 				</div>
 
-				<div>
+				<div class="space-y-3">
 					<Heading tag="h5">Or Select One of These Items</Heading>
-					<SearchInput bind:value={tgtProductsFilter} />
+					<SearchInput bind:value={tgtProductsFilter} centered />
 					<ItemScrollBox>
 						{#each tgtResults as result (result.item.item_id)}
 							{#if result.item.product_label

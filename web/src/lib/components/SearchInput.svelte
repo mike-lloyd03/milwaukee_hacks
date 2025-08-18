@@ -3,9 +3,12 @@
 
 	interface Props {
 		value: string;
+		centered?: boolean;
 	}
 
-	let { value = $bindable() }: Props = $props();
+	let { value = $bindable(), centered }: Props = $props();
+
+	const classes = centered ? 'mx-auto w-full' : '';
 </script>
 
-<Input class="mx-auto mb-4 max-w-96" bind:value placeholder="Search" />
+<Input class="max-w-96 {classes}" bind:value placeholder="Search" />

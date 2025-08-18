@@ -82,8 +82,8 @@
 <Card size="xl" class="mx-auto">
 	<Heading tag="h5">Select Products</Heading>
 	<div class="my-4 flex flex-col gap-4">
-		<div>
-			<SearchInput bind:value={productsFilter} />
+		<div class="space-y-3">
+			<SearchInput bind:value={productsFilter} centered />
 			<ItemScrollBox>
 				{#each results as result (result.item.item_id)}
 					<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">

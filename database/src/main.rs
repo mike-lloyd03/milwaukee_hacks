@@ -81,6 +81,8 @@ async fn main() -> Result<()> {
     for promo in promos {
         // Some promos have items in them which are not fetched by the earlier product
         // search call
+        // Might need to ensure these products have the right promo listed under them for back
+        // referencing
         for ec in promo.eligibility_criteria.iter() {
             for item_id in ec.item_ids.iter() {
                 fetch_product_if_not_exists(&pool, item_id).await?;

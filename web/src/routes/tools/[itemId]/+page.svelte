@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Heading, P } from 'flowbite-svelte';
+	import { Heading } from 'flowbite-svelte';
 	import type { PageData } from './$types';
 	import { formatCurrency, simplifyName } from '$lib/utils';
 	import PromoListGroup from '$lib/components/PromoListGroup.svelte';
+	import { PUBLIC_ENV } from '$env/static/public';
 
 	let { data }: { data: PageData } = $props();
 </script>
@@ -39,6 +40,8 @@
 	</div>
 </div>
 
-<pre class="text-left">
-    {JSON.stringify(data.product, null, 4)}
-</pre>
+{#if PUBLIC_ENV == 'dev'}
+	<pre class="text-left">
+        {JSON.stringify(data.product, null, 4)}
+    </pre>
+{/if}
