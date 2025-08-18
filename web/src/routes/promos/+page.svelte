@@ -24,18 +24,19 @@
 
 <div class="mx-auto space-y-2">
 	<Heading tag="h2" class="mb-4">Promos</Heading>
-	<P class="text-center">All active promotion</P>
+	<P class="text-center">All active promotions ({activePromos.length})</P>
 
 	<SearchInput bind:value={promosFilter} />
 
 	{#if activePromos.length}
-		<PromoListGroup promos={activePromos} searchTerm={promosFilter}></PromoListGroup>
+		<PromoListGroup promos={activePromos} searchTerm={promosFilter} includeExperienceTag
+		></PromoListGroup>
 	{/if}
 
 	{#if inactivePromos.length}
 		<div class="my-16">
-			<Heading tag="h3" class="mb-4">Expired Promos</Heading>
-			<PromoListGroup promos={inactivePromos}></PromoListGroup>
+			<Heading tag="h3" class="mb-4">Expired Promos {inactivePromos.length}</Heading>
+			<PromoListGroup promos={inactivePromos} includeExperienceTag></PromoListGroup>
 		</div>
 	{/if}
 </div>

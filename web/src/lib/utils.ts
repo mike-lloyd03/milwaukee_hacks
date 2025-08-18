@@ -57,3 +57,50 @@ export function isFuture(dateString: string): boolean {
 
 	return inputDate > today;
 }
+
+export function indexSetToCharGroup(
+	str: string,
+	indices?: Set<number>,
+): { chars: string; bold: boolean }[] {
+	let charMap: { chars: string; bold: boolean }[] = [];
+
+	if (indices) {
+		let group = "";
+		let lastCharInSet = false;
+
+		str.split("").forEach((char, i) => {
+			if (i == 0) {
+				group += char;
+				lastCharInSet = indices.has(i);
+				return;
+			}
+			if (i + 1 == str.length) {
+				group += char;
+				charMap.push({ chars: group, bold: indices.has(i) });
+			}
+			if (indices.has(i) && lastCharInSet) {
+				group += char;
+				return;
+			}
+			if (!indices.has(i) && lastCharInSet) {
+				charMap.push({ chars: group, bold: true });
+				group = char;
+				lastCharInSet = false;
+				return;
+			}
+			if (!indices.has(i) && !lastCharInSet) {
+				group += char;
+				return;
+			}
+			if (indices.has(i) && !lastCharInSet) {
+				charMap.push({ chars: group, bold: false });
+				group = char;
+				lastCharInSet = true;
+				return;
+			}
+		});
+	} else {
+		charMap = [{ chars: str, bold: false }];
+	}
+	return charMap;
+}

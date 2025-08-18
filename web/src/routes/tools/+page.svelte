@@ -11,7 +11,7 @@
 	let productsFilter = $state('');
 
 	const productsFzf = new Fzf(data.products, {
-		selector: (item) => simplifyName(item.product_label)
+		selector: (product) => simplifyName(product.product_label)
 	});
 	const results = $derived(productsFzf.find(productsFilter));
 </script>

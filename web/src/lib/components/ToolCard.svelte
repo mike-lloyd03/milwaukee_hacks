@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Product } from '$lib/types';
 	import { formatCurrency, simplifyName } from '$lib/utils';
+	import HighlightText from './HighlightText.svelte';
 
 	interface Props {
 		product: Product;
@@ -10,20 +11,6 @@
 
 	const { product, link, hlIndices }: Props = $props();
 </script>
-
-{#snippet hlChars()}
-	{#if hlIndices}
-		{#each simplifyName(product.product_label) as char, i (i)}
-			{#if hlIndices.has(i)}
-				<b>{char}</b>
-			{:else}
-				{char}
-			{/if}
-		{/each}
-	{:else}
-		{simplifyName(product.product_label)}
-	{/if}
-{/snippet}
 
 <div>
 	<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
@@ -35,8 +22,7 @@
 						alt="tool"
 						class="rounded-md"
 					/>
-					{@render hlChars()}
-					<!-- {simplifyName(product.product_label)} -->
+					<HighlightText str={simplifyName(product.product_label)} indices={hlIndices} />
 				</div>
 				{formatCurrency(product.pricing.value)}
 			</div>

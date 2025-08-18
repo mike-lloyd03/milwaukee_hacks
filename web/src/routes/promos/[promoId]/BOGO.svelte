@@ -8,6 +8,8 @@
 	import SearchInput from '$lib/components/SearchInput.svelte';
 	import ExcludedProducts from '$lib/components/ExcludedProducts.svelte';
 	import PromoItem from '$lib/components/PromoItem.svelte';
+	import { simplifyName } from '$lib/utils';
+	import { Fzf, type FzfResultItem } from 'fzf';
 
 	interface Props {
 		promo: Promotion;
@@ -38,6 +40,16 @@
 	let srcProducts = products.filter((p) => srcProductIds.includes(p.item_id));
 	let tgtProducts = products.filter((p) => tgtProductIds.includes(p.item_id));
 
+	const srcProductsFzf = new Fzf(srcProducts, {
+		selector: (product) => simplifyName(product.product_label)
+	});
+	const srcResults = $derived(srcProductsFzf.find(srcProductsFilter));
+
+	const tgtProductsFzf = new Fzf(tgtProducts, {
+		selector: (product) => simplifyName(product.product_label)
+	});
+	const tgtResults = $derived(tgtProductsFzf.find(tgtProductsFilter));
+
 	function calculate() {
 		let srcProductsAlgo = srcProducts.map((p) => ({
 			name: p.product_label,
@@ -58,30 +70,30 @@
 	}
 </script>
 
-{#snippet tool(product: Product)}
+{#snippet tool(result: FzfResultItem<Product>)}
 	<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
 		<label class="flex items-center py-2 text-sm font-medium">
 			{#if selectProductsMode}
 				<Radio
 					name="selectedProduct"
 					class="w-full"
-					value={product.product_label}
+					value={result.item.product_label}
 					bind:group={requiredProduct}
-					disabled={excludedProducts.includes(product.product_label)}
-					checked={requiredProduct == product.item_id}
+					disabled={excludedProducts.includes(result.item.product_label)}
+					checked={requiredProduct == result.item.item_id}
 				>
-					<PromoItem {product} />
+					<PromoItem product={result.item} hlIndices={result.positions} />
 				</Radio>
 			{:else}
 				<input
 					class="peer me-2 h-4 w-4 appearance-none rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800 dark:focus:ring-red-600"
 					type="checkbox"
 					name="excludedProduct"
-					value={product.product_label}
+					value={result.item.product_label}
 					bind:group={excludedProducts}
-					disabled={requiredProduct == product.product_label}
+					disabled={requiredProduct == result.item.product_label}
 				/>
-				<PromoItem {product} />
+				<PromoItem product={result.item} hlIndices={result.positions} />
 			{/if}
 		</label>
 	</div>
@@ -97,9 +109,11 @@
 					<Heading tag="h5">Select One of the Items Below</Heading>
 					<SearchInput bind:value={srcProductsFilter} />
 					<ItemScrollBox>
-						{#each srcProducts as product (product.item_id)}
-							{#if product.product_label.toLowerCase().includes(srcProductsFilter.toLowerCase())}
-								{@render tool(product)}
+						{#each srcResults as result (result.item.item_id)}
+							{#if result.item.product_label
+								.toLowerCase()
+								.includes(srcProductsFilter.toLowerCase())}
+								{@render tool(result)}
 							{/if}
 						{/each}
 					</ItemScrollBox>
@@ -109,9 +123,11 @@
 					<Heading tag="h5">Or Select One of These Items</Heading>
 					<SearchInput bind:value={tgtProductsFilter} />
 					<ItemScrollBox>
-						{#each tgtProducts as product (product.item_id)}
-							{#if product.product_label.toLowerCase().includes(tgtProductsFilter.toLowerCase())}
-								{@render tool(product)}
+						{#each tgtResults as result (result.item.item_id)}
+							{#if result.item.product_label
+								.toLowerCase()
+								.includes(tgtProductsFilter.toLowerCase())}
+								{@render tool(result)}
 							{/if}
 						{/each}
 					</ItemScrollBox>

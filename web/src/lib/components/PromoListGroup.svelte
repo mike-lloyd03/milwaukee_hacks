@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type { Promotion } from '$lib/types';
 	import { Listgroup } from 'flowbite-svelte';
+	import { Fzf } from 'fzf';
+	import HighlightText from './HighlightText.svelte';
 
 	interface Props {
 		promos: Promotion[];
@@ -20,13 +22,28 @@
 	let filteredLinks = $derived(
 		links.filter((l) => !searchTerm || l.title.toLowerCase().includes(searchTerm.toLowerCase()))
 	);
+
+	const promosFzf = new Fzf(links, {
+		selector: (link) => link.title
+	});
+	const results = $derived(promosFzf.find(searchTerm ?? ''));
 </script>
 
 {#if filteredLinks.length > 0}
-	<Listgroup active items={filteredLinks} let:item class="mx-auto w-2xl">
-		{item.title}
+	<Listgroup
+		active
+		items={results.map((r) => ({
+			title: r.item.title,
+			experience_tag: r.item.experience_tag,
+			href: r.item.href,
+			indices: r.positions
+		}))}
+		let:item={result}
+		class="mx-auto w-2xl"
+	>
+		<HighlightText str={result.title} indices={result.indices} />
 		{#if includeExperienceTag}
-			({item.experience_tag})
+			({result.experience_tag})
 		{/if}
 	</Listgroup>
 {:else}

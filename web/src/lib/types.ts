@@ -16,11 +16,14 @@ export interface Product {
 
 export interface Pricing {
 	value: number;
-	original: number;
+	original?: number;
 	promotion: {
 		promotion_tag?: string;
 		type?: string;
-		description?: string;
+		description?: {
+			short_desc?: string;
+			long_desc?: string;
+		};
 		dollar_off: number;
 		percentage_off: number;
 		savings_center?: string;
@@ -45,7 +48,7 @@ export function getProducts(db: Database, ids?: string[]) {
 		query += ")";
 	}
 
-	query += " order by json_extract(pricing, '$.pricing.value')";
+	query += " order by json_extract(pricing, '$.value') desc";
 
 	const result = db.prepare(query).all(ids ?? {}) as unknown[];
 	const products = result.map((promo) => objToProduct(promo));
