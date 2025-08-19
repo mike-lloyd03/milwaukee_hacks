@@ -28,7 +28,7 @@ pub struct Identifiers {
 pub struct Pricing {
     pub value: Option<f32>,
     pub original: Option<f32>,
-    pub promotion: ProductPromotion,
+    pub promotion: Option<ProductPromotion>,
     pub conditional_promotions: Vec<ConditionalPromotion>,
     pub message: Option<String>,
     pub special_buy: Option<String>,

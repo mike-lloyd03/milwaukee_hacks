@@ -17,7 +17,7 @@ export interface Product {
 export interface Pricing {
 	value: number;
 	original?: number;
-	promotion: {
+	promotion?: {
 		promotion_tag?: string;
 		type?: string;
 		description?: {
