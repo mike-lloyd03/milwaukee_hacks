@@ -1,26 +1,35 @@
 import type { PageServerLoad } from "./$types";
-import type { ProductDB, PromotionDB } from "$lib/dbTypes";
+import { getProducts, getPromotion, type Promotion } from "$lib/types";
+import { error } from "@sveltejs/kit";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
-	const db = locals.db;
-	const promo = db
-		.prepare("select * from promotions where item_id = ?")
-		.get(params.promoId) as PromotionDB;
-
-	if (promo.reward_tiers) {
-		promo.reward_tiers = JSON.parse(promo.reward_tiers.toString());
+	if (isNaN(Number(params.promoId))) {
+		error(400, { message: "promoId is not numeric" });
 	}
 
-	const itemIDs: string[] = JSON.parse(promo.item_ids);
+	const db = locals.db;
+	let promo: Promotion;
 
-	let query = "select * from products where item_id in (";
-	query += itemIDs.map(() => "?").join(", ");
-	query += ") order by pricing_value";
+	try {
+		promo = getPromotion(db, params.promoId);
+	} catch (e) {
+		if (typeof e == "string") {
+			if (e.includes("not found")) {
+				error(404, "Promotion not found");
+			}
+		} else {
+			throw e;
+		}
+	}
 
-	const products: ProductDB[] = db.prepare(query).all(itemIDs) as ProductDB[];
+	const itemIDs: string[] = promo!.eligibility_criteria
+		.map((ec) => ec.item_ids)
+		.flat();
+
+	const products = getProducts(db, itemIDs);
 
 	return {
 		products,
-		promo,
+		promo: promo!,
 	};
 };

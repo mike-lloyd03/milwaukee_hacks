@@ -1,48 +1,16 @@
 <script lang="ts">
-	import { Heading, Listgroup } from 'flowbite-svelte';
-	import type { PageData } from './$types';
-	import { isFuture } from '$lib/utils';
-
-	let { data }: { data: PageData } = $props();
-
-	const activeLinks = data.promos
-		.filter((p) => {
-			return isFuture(p.end_date);
-		})
-		.map((p) => {
-			return {
-				name: p.name,
-				href: `/promos/${p.item_id}`
-			};
-		});
-
-	const inactiveLinks = data.promos
-		.filter((p) => {
-			return !isFuture(p.end_date);
-		})
-		.map((p) => {
-			return {
-				name: p.name,
-				href: `/promos/${p.item_id}`
-			};
-		});
+	import { Heading, P } from 'flowbite-svelte';
 </script>
 
-<div class="mx-auto my-6">
-	<Heading tag="h2" class="mb-4">Promos</Heading>
-	<Heading tag="h3" class="mb-4">Active</Heading>
-	{#if activeLinks.length > 0}
-		<Listgroup active items={activeLinks} let:item class="mx-auto w-96">
-			{item.name ?? ''}
-		</Listgroup>
-	{/if}
+<div class="space-y-16">
+	<div class="spacey-y-4">
+		<Heading tag="h2">Milwaukee Hacks</Heading>
 
-	{#if inactiveLinks.length > 0}
-		<div class="my-16">
-			<Heading tag="h3" class="mb-4">Expired Promos</Heading>
-			<Listgroup active items={inactiveLinks} let:item class="mx-auto w-96">
-				{item.name ?? ''}
-			</Listgroup>
-		</div>
-	{/if}
+		<Heading tag="h6">Home of the illustrious Milwaukee deal finder</Heading>
+	</div>
+
+	<P class="text-center">
+		Find tools which are currently on sale at Home Depot and find promotions for them which can be
+		hacked to get steep discounts
+	</P>
 </div>

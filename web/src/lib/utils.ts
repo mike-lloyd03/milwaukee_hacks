@@ -1,5 +1,4 @@
-import { type Product } from "$lib/types";
-import type { ProductDB } from "./dbTypes";
+import type { ProductAlgo } from "./pkg/algorithm";
 
 export function formatCurrency(value: number) {
 	const formatter = new Intl.NumberFormat("en-US", {
@@ -18,16 +17,18 @@ export function formatPercent(value: number) {
 	return formatter.format(value);
 }
 
-export function simplifyName(product: ProductDB): string {
+export function simplifyName(name: string): string {
 	const removeStr = [
 		"18V",
 		"18-Volt",
+		"18-V",
 		"Lithium-Ion",
 		"Cordless",
 		"12V",
 		"12-Volt",
+		"12 Volt",
 	];
-	let newName = product.product_label;
+	let newName = name;
 	for (const s of removeStr) {
 		newName = newName.replaceAll(s, "");
 	}
@@ -38,8 +39,8 @@ export function simplifyName(product: ProductDB): string {
 	return newName;
 }
 
-export function uniqueProducts(l: Product[]): Product[] {
-	const r: Product[] = [];
+export function uniqueProducts(l: ProductAlgo[]): ProductAlgo[] {
+	const r: ProductAlgo[] = [];
 	for (const i of l) {
 		if (!r.map((p) => p.name).includes(i.name)) {
 			r.push(i);
@@ -55,4 +56,51 @@ export function isFuture(dateString: string): boolean {
 	const today = new Date();
 
 	return inputDate > today;
+}
+
+export function indexSetToCharGroup(
+	str: string,
+	indices?: Set<number>,
+): { chars: string; bold: boolean }[] {
+	let charMap: { chars: string; bold: boolean }[] = [];
+
+	if (indices) {
+		let group = "";
+		let lastCharInSet = false;
+
+		str.split("").forEach((char, i) => {
+			if (i == 0) {
+				group += char;
+				lastCharInSet = indices.has(i);
+				return;
+			}
+			if (i + 1 == str.length) {
+				group += char;
+				charMap.push({ chars: group, bold: indices.has(i) });
+			}
+			if (indices.has(i) && lastCharInSet) {
+				group += char;
+				return;
+			}
+			if (!indices.has(i) && lastCharInSet) {
+				charMap.push({ chars: group, bold: true });
+				group = char;
+				lastCharInSet = false;
+				return;
+			}
+			if (!indices.has(i) && !lastCharInSet) {
+				group += char;
+				return;
+			}
+			if (indices.has(i) && !lastCharInSet) {
+				charMap.push({ chars: group, bold: false });
+				group = char;
+				lastCharInSet = true;
+				return;
+			}
+		});
+	} else {
+		charMap = [{ chars: str, bold: false }];
+	}
+	return charMap;
 }

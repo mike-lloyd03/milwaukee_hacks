@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "insert into products (\n                item_id,\n                brand_name,\n                product_type,\n                product_label,\n                canonical_url,\n                pricing,\n                image_primary_url,\n                image_primary_sizes,\n                image_secondary_url,\n                image_secondary_sizes,\n                updated_at\n            ) values \n            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\n            on conflict (item_id)\n            do update set\n                brand_name = $2,\n                product_type = $3,\n                product_label = $4,\n                canonical_url = $5,\n                pricing = $6,\n                image_primary_url = $7,\n                image_primary_sizes = $8,\n                image_secondary_url = $9,\n                image_secondary_sizes = $10,\n                updated_at = $11\n            where item_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 11
+    },
+    "nullable": []
+  },
+  "hash": "df481eb8e8dafe5428703682fd6508a7059c9f600412e0e414df68b3df2e547d"
+}

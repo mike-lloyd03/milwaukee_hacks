@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use serde::Deserialize;
 
 use crate::types::Product;
@@ -77,15 +77,15 @@ struct Response {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SearchModel {
-    search_model: Products,
+    search_model: Option<Products>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 struct Products {
     products: Vec<Product>,
 }
 
-pub fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
+pub async fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
     let variables = serde_json::json!({
             "itemIds":item_ids,
             "storeId": null,
@@ -97,15 +97,21 @@ pub fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
         "query": QUERY,
     });
 
-    let resp = ureq::post(
-        "https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts",
-    )
-    .header("x-experience-name", "fusion-gm-pip-desktop")
-    .header("content-type", "application/json")
-    .send_json(body)?
-    .body_mut()
-    .read_json::<Response>()
-    .context("Failed to parse promotionProductsItems response")?;
+    let client = reqwest::Client::new();
 
-    Ok(resp.data.search_model.products)
+    let resp = client
+        .post("https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts")
+        .header("x-experience-name", "fusion-gm-pip-desktop")
+        .header("content-type", "application/json")
+        .json(&body)
+        .send()
+        .await?
+        .json::<Response>()
+        .await?;
+
+    Ok(resp
+        .data
+        .search_model
+        .unwrap_or_else(Products::default)
+        .products)
 }

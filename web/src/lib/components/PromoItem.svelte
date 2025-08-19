@@ -1,0 +1,26 @@
+<script lang="ts">
+	import type { Product } from '$lib/types';
+	import { formatCurrency, simplifyName } from '$lib/utils';
+	import HighlightText from './HighlightText.svelte';
+
+	interface Props {
+		product: Product;
+		hlIndices?: Set<number>;
+	}
+
+	let { product, hlIndices }: Props = $props();
+</script>
+
+<div class="flex w-full items-center justify-between">
+	<div class="flex items-center">
+		<img src={product.image_primary_url.replace('<SIZE>', '65')} alt="tool" class="rounded-md" />
+		<a
+			href={`https://www.homedepot.com${product.canonical_url}`}
+			class="mx-2 hover:underline"
+			target="_blank"
+		>
+			<HighlightText str={simplifyName(product.product_label)} indices={hlIndices} />
+		</a>
+	</div>
+	{formatCurrency(product.pricing.value)}
+</div>

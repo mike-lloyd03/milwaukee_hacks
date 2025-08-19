@@ -1,5 +1,5 @@
 import type { Database } from "better-sqlite3";
-import type { ProductDB } from "$lib/dbTypes";
+import type { Product } from "$lib/types";
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
@@ -9,7 +9,8 @@ declare global {
 			db: Database;
 		}
 		interface PageData {
-			products?: ProductDB[];
+			product?: Product;
+			products?: Product[];
 			promo?: PromotionDB;
 			promos?: PromotionDB[];
 		}
