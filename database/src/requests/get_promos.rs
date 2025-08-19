@@ -68,7 +68,7 @@ struct Promotions {
 }
 
 /// Fetches any promotions for the given product item_id
-pub async fn get_promo(item_id: &str) -> Result<Promotion> {
+pub fn get_promo(item_id: &str) -> Result<Promotion> {
     let variables = serde_json::json!({
             "itemId":item_id,
             "pageSize": 48,
@@ -80,17 +80,14 @@ pub async fn get_promo(item_id: &str) -> Result<Promotion> {
         "query": QUERY,
     });
 
-    let client = reqwest::Client::new();
-
-    let resp = client
-        .post("https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts")
-        .header("x-experience-name", "fusion-gm-pip-desktop")
-        .header("content-type", "application/json")
-        .json(&body)
-        .send()
-        .await?
-        .json::<Response>()
-        .await?;
+    let resp: Response = ureq::post(
+        "https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts",
+    )
+    .header("x-experience-name", "fusion-gm-pip-desktop")
+    .header("content-type", "application/json")
+    .send_json(body)?
+    .body_mut()
+    .read_json()?;
 
     match resp
         .data

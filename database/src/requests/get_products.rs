@@ -217,12 +217,10 @@ struct SearchReport {
     pub start_index: u32,
 }
 
-pub async fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
+pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
     let mut products: Vec<Product> = Vec::new();
     let page_size = 24;
     let mut index = 0;
-
-    let client = reqwest::Client::new();
 
     loop {
         let variables = serde_json::json!({
@@ -242,18 +240,13 @@ pub async fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
             "query": QUERY,
         });
 
-        let resp_str = client
-            .post("https://apionline.homedepot.com/federation-gateway/graphql")
-            .header("x-experience-name", "fusion-gm-pip-desktop")
-            .header("content-type", "application/json")
-            .json(&body)
-            .send()
-            .await?
-            .text()
-            .await?;
-
         let resp: Response =
-            serde_json::from_str(&resp_str).context("Failed to parse get_product response")?;
+            ureq::post("https://apionline.homedepot.com/federation-gateway/graphql")
+                .header("x-experience-name", "fusion-gm-pip-desktop")
+                .header("content-type", "application/json")
+                .send_json(body)?
+                .body_mut()
+                .read_json()?;
 
         match resp.data.search_model {
             Some(mut search_model) if index < search_model.search_report.total_products => {

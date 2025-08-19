@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
     let now = now_timestamp();
 
     let mut promos: Vec<Promotion> = Vec::new();
-    let products = requests::get_products(search_params).await?;
+    let products = requests::get_products(search_params)?;
 
     for product in &products {
         let product_promos: Vec<String> = product
@@ -50,7 +50,7 @@ async fn main() -> Result<()> {
             .iter()
             .any(|existing_promo| product_promos.contains(existing_promo))
         {
-            match requests::get_promo(&product.id).await {
+            match requests::get_promo(&product.id) {
                 Ok(p) => {
                     println!(
                         "Got promo {}: {}",
@@ -103,7 +103,7 @@ async fn fetch_product_if_not_exists(pool: &SqlitePool, item_id: &str) -> Result
     let exists = ProductDB::check_exists(pool, item_id).await?;
     if !exists {
         println!("Promo item {item_id} missing from DB. Fetching...");
-        let product = get_product(item_id).await?;
+        let product = get_product(item_id)?;
         let product_db: ProductDB = product.into();
         product_db.create(pool).await?;
     }

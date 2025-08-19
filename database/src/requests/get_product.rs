@@ -145,9 +145,7 @@ struct Data {
     product: Product,
 }
 
-pub async fn get_product(item_id: &str) -> Result<Product> {
-    let client = reqwest::Client::new();
-
+pub fn get_product(item_id: &str) -> Result<Product> {
     let variables = serde_json::json!({
       "itemId": item_id,
       "storeId": STORE_ID
@@ -159,18 +157,12 @@ pub async fn get_product(item_id: &str) -> Result<Product> {
         "query": QUERY,
     });
 
-    let resp_str = client
-        .post("https://apionline.homedepot.com/federation-gateway/graphql")
+    let resp: Response = ureq::post("https://apionline.homedepot.com/federation-gateway/graphql")
         .header("x-experience-name", "fusion-gm-pip-desktop")
         .header("content-type", "application/json")
-        .json(&body)
-        .send()
-        .await?
-        .text()
-        .await?;
-
-    let resp: Response =
-        serde_json::from_str(&resp_str).context("Failed to parse get_products response")?;
+        .send_json(body)?
+        .body_mut()
+        .read_json()?;
 
     Ok(resp.data.product)
 }

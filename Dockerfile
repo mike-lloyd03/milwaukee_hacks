@@ -1,5 +1,5 @@
 ###### WASM Builder
-FROM rust:1.84 AS wasm_builder
+FROM rust:1.89 AS wasm_builder
 
 RUN cargo install wasm-pack
 
@@ -10,7 +10,7 @@ COPY algorithm /src
 RUN wasm-pack build
 
 ###### Database Builder
-FROM rust:1.84 AS db_builder
+FROM rust:1.89 AS db_builder
 
 WORKDIR /src
 

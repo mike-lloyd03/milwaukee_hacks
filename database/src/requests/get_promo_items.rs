@@ -85,7 +85,7 @@ struct Products {
     products: Vec<Product>,
 }
 
-pub async fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
+pub fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
     let variables = serde_json::json!({
             "itemIds":item_ids,
             "storeId": null,
@@ -97,17 +97,14 @@ pub async fn get_promo_items(item_ids: Vec<String>) -> Result<Vec<Product>> {
         "query": QUERY,
     });
 
-    let client = reqwest::Client::new();
-
-    let resp = client
-        .post("https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts")
-        .header("x-experience-name", "fusion-gm-pip-desktop")
-        .header("content-type", "application/json")
-        .json(&body)
-        .send()
-        .await?
-        .json::<Response>()
-        .await?;
+    let resp: Response = ureq::post(
+        "https://apionline.homedepot.com/federation-gateway/graphql?opname=promotionProducts",
+    )
+    .header("x-experience-name", "fusion-gm-pip-desktop")
+    .header("content-type", "application/json")
+    .send_json(body)?
+    .body_mut()
+    .read_json()?;
 
     Ok(resp
         .data
