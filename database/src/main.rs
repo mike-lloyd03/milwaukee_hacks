@@ -53,18 +53,21 @@ async fn main() -> Result<()> {
             .iter()
             .any(|existing_promo| product_promos.contains(existing_promo))
         {
-            match requests::get_promo(&product.id) {
+            match requests::get_promos_for_product(&product.id) {
                 Ok(p) => {
-                    println!(
-                        "Got promo {}: {}",
-                        &p.promotion_id,
-                        p.description
-                            .long_desc
-                            .clone()
-                            .unwrap_or(p.description.short_desc.clone())
-                    );
+                    for promo in p {
+                        println!(
+                            "Got promo {}: {}",
+                            &promo.promotion_id,
+                            promo
+                                .description
+                                .long_desc
+                                .clone()
+                                .unwrap_or(promo.description.short_desc.clone())
+                        );
 
-                    promos.push(p);
+                        promos.push(promo);
+                    }
                 }
                 Err(e) => {
                     let err_msg = e.to_string();

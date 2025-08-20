@@ -68,7 +68,7 @@ struct PromotionProducts {
 }
 
 /// Fetches any promotions for the given product item_id
-pub fn get_promo(item_id: &str) -> Result<Promotion> {
+pub fn get_promos_for_product(item_id: &str) -> Result<Vec<Promotion>> {
     let variables = serde_json::json!({
             "itemId":item_id,
             "pageSize": 48,
@@ -90,10 +90,7 @@ pub fn get_promo(item_id: &str) -> Result<Promotion> {
     .read_json()?;
 
     if let Some(promotion_products) = resp.data.promotion_products {
-        match promotion_products.promotions.into_iter().take(1).next() {
-            Some(p) => Ok(p),
-            None => bail!("Promotion not found"),
-        }
+        Ok(promotion_products.promotions)
     } else {
         bail!("No promotions for product")
     }
