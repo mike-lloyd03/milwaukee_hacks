@@ -1,7 +1,10 @@
+use std::collections::HashSet;
+
 use anyhow::Result;
 use database::requests::{self, get_product, Brand, Department, SearchParams};
 use database::types::{ProductDB, Promotion, PromotionDB};
 use database::{config, now_timestamp};
+use futures::future::join_all;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 #[tokio::main]
@@ -64,8 +67,14 @@ async fn main() -> Result<()> {
                     promos.push(p);
                 }
                 Err(e) => {
-                    println!("Warning: {e}");
-                    continue;
+                    let err_msg = e.to_string();
+                    let skip_errors = ["Promotion not found", "No promotions for product"];
+
+                    if skip_errors.iter().any(|e| err_msg.contains(e)) {
+                        println!("Warning: {e}");
+                        continue;
+                    }
+                    return Err(e);
                 }
             };
         }
@@ -78,6 +87,8 @@ async fn main() -> Result<()> {
         product_db.create(&pool).await?;
     }
 
+    let mut items_to_fetch: HashSet<String> = HashSet::new();
+
     for promo in promos {
         // Some promos have items in them which are not fetched by the earlier product
         // search call
@@ -85,7 +96,9 @@ async fn main() -> Result<()> {
         // referencing
         for ec in promo.eligibility_criteria.iter() {
             for item_id in ec.item_ids.iter() {
-                fetch_product_if_not_exists(&pool, item_id).await?;
+                if !ProductDB::check_exists(&pool, item_id).await? {
+                    items_to_fetch.insert(item_id.to_string());
+                };
             }
         }
 
@@ -93,19 +106,32 @@ async fn main() -> Result<()> {
         promo_db.create(&pool).await?;
     }
 
+    let futures = items_to_fetch.iter().map(|item_id| {
+        let id_clone = item_id.clone();
+
+        tokio::task::spawn_blocking(move || {
+            println!("Promo item {id_clone} missing from DB. Fetching...");
+            let product = get_product(&id_clone).unwrap();
+            let product_db: ProductDB = product.into();
+            product_db
+        })
+    });
+
+    let results = join_all(futures).await;
+
+    let new_products: Vec<ProductDB> = results.into_iter().filter_map(Result::ok).collect();
+
+    let mut tx = pool.begin().await?;
+
+    println!("Adding {} products...", new_products.len());
+    for product in new_products {
+        product.create(&mut *tx).await?;
+    }
+
+    tx.commit().await?;
+
     ProductDB::delete_all_before(&pool, now).await?;
     PromotionDB::delete_all_before(&pool, now).await?;
 
-    Ok(())
-}
-
-async fn fetch_product_if_not_exists(pool: &SqlitePool, item_id: &str) -> Result<()> {
-    let exists = ProductDB::check_exists(pool, item_id).await?;
-    if !exists {
-        println!("Promo item {item_id} missing from DB. Fetching...");
-        let product = get_product(item_id)?;
-        let product_db: ProductDB = product.into();
-        product_db.create(pool).await?;
-    }
     Ok(())
 }

@@ -1,7 +1,7 @@
 use crate::now_timestamp;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::{types::Json, SqlitePool};
+use sqlx::{types::Json, Executor, Sqlite, SqlitePool};
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
@@ -121,7 +121,10 @@ impl From<Product> for ProductDB {
 }
 
 impl ProductDB {
-    pub async fn create(&self, pool: &SqlitePool) -> Result<()> {
+    pub async fn create<'a, E>(&self, executor: E) -> Result<()>
+    where
+        E: Executor<'a, Database = Sqlite>,
+    {
         sqlx::query!(
             r#"insert into products (
                 item_id,
@@ -163,7 +166,7 @@ impl ProductDB {
             self.image_secondary_sizes,
             self.updated_at
         )
-        .execute(pool)
+        .execute(executor)
         .await?;
         Ok(())
     }
