@@ -1,7 +1,7 @@
 use crate::now_timestamp;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{Executor, Sqlite, SqlitePool};
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
@@ -133,7 +133,10 @@ impl From<Promotion> for PromotionDB {
 }
 
 impl PromotionDB {
-    pub async fn create(&self, pool: &SqlitePool) -> Result<()> {
+    pub async fn create<'a, E>(&self, executor: E) -> Result<()>
+    where
+        E: Executor<'a, Database = Sqlite>,
+    {
         sqlx::query!(
             r#"insert into promotions (
                 promotion_id,
@@ -218,7 +221,7 @@ impl PromotionDB {
             self.eligibility_criteria,
             self.updated_at
         )
-            .execute(pool)
+            .execute(executor)
         .await?;
         Ok(())
     }
