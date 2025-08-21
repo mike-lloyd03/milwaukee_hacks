@@ -74,15 +74,17 @@
 	<div class="my-2 rounded-md bg-gray-200 px-3 py-1 dark:bg-gray-700">
 		<label class="flex items-center py-2 text-sm font-medium">
 			{#if selectProductsMode}
-				<Radio
-					name="selectedProduct"
-					value={result.item.product_label}
-					bind:group={requiredProduct}
-					disabled={excludedProducts.includes(result.item.product_label)}
-					checked={requiredProduct == result.item.item_id}
-				>
-					<PromoItem product={result.item} hlIndices={result.positions} />
-				</Radio>
+				<div class="w-full">
+					<Radio
+						name="selectedProduct"
+						value={result.item.product_label}
+						bind:group={requiredProduct}
+						disabled={excludedProducts.includes(result.item.product_label)}
+						checked={requiredProduct == result.item.item_id}
+					>
+						<PromoItem product={result.item} hlIndices={result.positions} />
+					</Radio>
+				</div>
 			{:else}
 				<input
 					class="peer me-2 h-4 w-4 appearance-none rounded border-gray-300 bg-gray-100 text-red-600 focus:ring-2 focus:ring-red-500 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800 dark:focus:ring-red-600"
