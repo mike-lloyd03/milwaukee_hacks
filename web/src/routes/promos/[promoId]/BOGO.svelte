@@ -76,7 +76,6 @@
 			{#if selectProductsMode}
 				<Radio
 					name="selectedProduct"
-					class="w-full"
 					value={result.item.product_label}
 					bind:group={requiredProduct}
 					disabled={excludedProducts.includes(result.item.product_label)}
