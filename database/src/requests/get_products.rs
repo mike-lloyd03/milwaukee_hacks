@@ -217,7 +217,7 @@ struct SearchReport {
     pub start_index: u32,
 }
 
-pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
+pub fn get_products(search_params: &SearchParams) -> Result<Vec<Product>> {
     let mut products: Vec<Product> = Vec::new();
     let page_size = 24;
     let mut index = 0;
@@ -250,6 +250,10 @@ pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
 
         match resp.data.search_model {
             Some(mut search_model) if index < search_model.search_report.total_products => {
+                if search_model.products.is_empty() {
+                    break;
+                }
+
                 products.append(&mut search_model.products);
                 index += page_size;
                 println!(
@@ -257,6 +261,8 @@ pub fn get_products(search_params: SearchParams) -> Result<Vec<Product>> {
                     search_model.search_report.total_products
                 );
             }
+            // `search_model` will be null if you try to fetch and index above 720, even if the
+            // search report says there are more than this
             _ => break,
         }
     }

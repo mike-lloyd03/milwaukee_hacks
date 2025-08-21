@@ -17,26 +17,9 @@ async fn main() -> Result<()> {
     let pool = SqlitePool::connect_with(options).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
 
-    let search_params = SearchParams {
-        department: Some(Department::PowerTools),
-        brand: Some(Brand::Milwaukee),
-        buy_more_save_more: true,
-        buy_one_get_one: true,
-        special_buy: false,
-    };
-
-    println!(
-        "Searching for products with brand {:?}, bmsm: {}, bogo: {}, special buy: {}. nav_param: {}",
-        search_params.brand,
-        search_params.buy_more_save_more,
-        search_params.buy_one_get_one,
-        search_params.special_buy,
-        search_params.to_nav_param()
-    );
-
     let now = now_timestamp();
 
-    let products = requests::get_products(search_params)?;
+    let products = get_all_products().await?;
 
     let promos = get_all_promos(&products).await;
 
@@ -69,6 +52,51 @@ async fn main() -> Result<()> {
     PromotionDB::delete_all_before(&pool, now).await?;
 
     Ok(())
+}
+
+fn print_search_params(search_params: &SearchParams) {
+    println!(
+        "Searching for products with brand {:?}, bmsm: {}, bogo: {}, special buy: {}. nav_param: {}",
+        search_params.brand,
+        search_params.buy_more_save_more,
+        search_params.buy_one_get_one,
+        search_params.special_buy,
+        search_params.to_nav_param()
+    );
+}
+
+async fn get_all_products() -> Result<Vec<Product>> {
+    let mut search_params = SearchParams {
+        department: Some(Department::PowerTools),
+        brand: Some(Brand::Milwaukee),
+        buy_more_save_more: false,
+        buy_one_get_one: false,
+        special_buy: false,
+    };
+
+    let mut products: HashMap<String, Product> = HashMap::new();
+
+    // We need to fetch these search parameters separately since the HD API will not let you fetch
+    // more than 720 results per query
+    search_params.buy_more_save_more = true;
+    search_params.buy_one_get_one = false;
+    search_params.special_buy = false;
+    print_search_params(&search_params);
+    let bmsm_products = requests::get_products(&search_params)?;
+    bmsm_products.into_iter().for_each(|p| {
+        products.entry(p.id.clone()).or_insert(p);
+    });
+
+    search_params.buy_more_save_more = false;
+    search_params.buy_one_get_one = true;
+    search_params.special_buy = false;
+    print_search_params(&search_params);
+    let bogo_products = requests::get_products(&search_params)?;
+    bogo_products.into_iter().for_each(|p| {
+        products.entry(p.id.clone()).or_insert(p);
+    });
+
+    Ok(products.into_values().collect())
 }
 
 async fn get_all_promos(products: &Vec<Product>) -> Vec<Promotion> {
