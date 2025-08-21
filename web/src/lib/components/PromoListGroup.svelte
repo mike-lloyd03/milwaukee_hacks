@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Promotion } from '$lib/types';
-	import { Listgroup } from 'flowbite-svelte';
+	import { Listgroup, ListgroupItem } from 'flowbite-svelte';
 	import { Fzf } from 'fzf';
 	import HighlightText from './HighlightText.svelte';
 
@@ -14,6 +14,7 @@
 	let { promos, includeExperienceTag, selectedProduct, searchTerm }: Props = $props();
 
 	let links = promos.map((p) => ({
+		id: p.promotion_id,
 		title: p.long_description ?? p.short_description,
 		experience_tag: p.experience_tag,
 		href: `/promos/${p.promotion_id}${selectedProduct ? `?products=${selectedProduct}` : ''}`
@@ -30,22 +31,18 @@
 </script>
 
 {#if filteredLinks.length > 0}
-	<Listgroup
-		active
-		items={results.map((r) => ({
-			title: r.item.title,
-			experience_tag: r.item.experience_tag,
-			href: r.item.href,
-			indices: r.positions
-		}))}
-		let:item={result}
-		class="mx-auto max-w-2xl"
-	>
-		<HighlightText str={result.title} indices={result.indices} />
-		{#if includeExperienceTag}
-			({result.experience_tag})
-		{/if}
+	<Listgroup active class="mx-auto max-w-2xl">
+		{#each results as result (result.item.id)}
+			<ListgroupItem active>
+				<a href={result.item.href}>
+					<HighlightText str={result.item.title} indices={result.positions} />
+					{#if includeExperienceTag}
+						({result.item.experience_tag})
+					{/if}
+				</a>
+			</ListgroupItem>
+		{/each}
 	</Listgroup>
 {:else}
-	No results
+	<div>No results</div>
 {/if}
