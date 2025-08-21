@@ -53,22 +53,22 @@ const QUERY: &str = r#"query promotionProducts($itemId: String!, $pageSize: Int)
 
 #[derive(Debug, Deserialize)]
 struct Response {
-    data: PromotionProducts,
+    data: Data,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct PromotionProducts {
-    promotion_products: Promotions,
+struct Data {
+    promotion_products: Option<PromotionProducts>,
 }
 
 #[derive(Debug, Deserialize)]
-struct Promotions {
+struct PromotionProducts {
     promotions: Vec<Promotion>,
 }
 
 /// Fetches any promotions for the given product item_id
-pub fn get_promo(item_id: &str) -> Result<Promotion> {
+pub fn get_promos_for_product(item_id: &str) -> Result<Vec<Promotion>> {
     let variables = serde_json::json!({
             "itemId":item_id,
             "pageSize": 48,
@@ -89,15 +89,9 @@ pub fn get_promo(item_id: &str) -> Result<Promotion> {
     .body_mut()
     .read_json()?;
 
-    match resp
-        .data
-        .promotion_products
-        .promotions
-        .into_iter()
-        .take(1)
-        .next()
-    {
-        Some(p) => Ok(p),
-        None => bail!("Promotion not found"),
+    if let Some(promotion_products) = resp.data.promotion_products {
+        Ok(promotion_products.promotions)
+    } else {
+        bail!("No promotions for product")
     }
 }

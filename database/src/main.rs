@@ -1,26 +1,60 @@
+use std::collections::{HashMap, HashSet};
+
 use anyhow::Result;
 use database::requests::{self, get_product, Brand, Department, SearchParams};
-use database::types::{ProductDB, Promotion, PromotionDB};
+use database::types::{Product, ProductDB, Promotion, PromotionDB};
 use database::{config, now_timestamp};
+use futures::future::join_all;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let config = config::Config::load("config.toml")?;
+    let load = config::Config::load("config.toml")?;
+    let config = load;
     let options = SqliteConnectOptions::new()
         .filename(&config.db_path)
         .create_if_missing(true);
     let pool = SqlitePool::connect_with(options).await?;
     sqlx::migrate!("./migrations").run(&pool).await?;
 
-    let search_params = SearchParams {
-        department: Some(Department::PowerTools),
-        brand: Some(Brand::Milwaukee),
-        buy_more_save_more: true,
-        buy_one_get_one: true,
-        special_buy: false,
-    };
+    let now = now_timestamp();
 
+    let products = get_all_products().await?;
+
+    let promos = get_all_promos(&products).await;
+
+    let additional_products = get_additional_products(&products, &promos).await?;
+
+    println!("Got {} products", products.len());
+    println!("Got {} promos", promos.len());
+    println!("Got {} additional products", additional_products.len());
+
+    let mut tx = pool.begin().await?;
+
+    for product in products {
+        let product_db: ProductDB = product.into();
+        product_db.create(&mut *tx).await?;
+    }
+
+    for promo in promos {
+        let promo_db: PromotionDB = promo.into();
+        promo_db.create(&mut *tx).await?;
+    }
+
+    for product in additional_products {
+        let product_db: ProductDB = product.into();
+        product_db.create(&mut *tx).await?;
+    }
+
+    tx.commit().await?;
+
+    ProductDB::delete_all_before(&pool, now).await?;
+    PromotionDB::delete_all_before(&pool, now).await?;
+
+    Ok(())
+}
+
+fn print_search_params(search_params: &SearchParams) {
     println!(
         "Searching for products with brand {:?}, bmsm: {}, bogo: {}, special buy: {}. nav_param: {}",
         search_params.brand,
@@ -29,54 +63,96 @@ async fn main() -> Result<()> {
         search_params.special_buy,
         search_params.to_nav_param()
     );
+}
 
-    let now = now_timestamp();
+async fn get_all_products() -> Result<Vec<Product>> {
+    let mut search_params = SearchParams {
+        department: Some(Department::PowerTools),
+        brand: Some(Brand::Milwaukee),
+        buy_more_save_more: false,
+        buy_one_get_one: false,
+        special_buy: false,
+    };
 
-    let mut promos: Vec<Promotion> = Vec::new();
-    let products = requests::get_products(search_params)?;
+    let mut products: HashMap<String, Product> = HashMap::new();
 
-    for product in &products {
-        let product_promos: Vec<String> = product
+    // We need to fetch these search parameters separately since the HD API will not let you fetch
+    // more than 720 results per query
+    search_params.buy_more_save_more = true;
+    search_params.buy_one_get_one = false;
+    search_params.special_buy = false;
+    print_search_params(&search_params);
+    let bmsm_products = requests::get_products(&search_params)?;
+    bmsm_products.into_iter().for_each(|p| {
+        products.entry(p.id.clone()).or_insert(p);
+    });
+
+    search_params.buy_more_save_more = false;
+    search_params.buy_one_get_one = true;
+    search_params.special_buy = false;
+    print_search_params(&search_params);
+    let bogo_products = requests::get_products(&search_params)?;
+    bogo_products.into_iter().for_each(|p| {
+        products.entry(p.id.clone()).or_insert(p);
+    });
+
+    Ok(products.into_values().collect())
+}
+
+async fn get_all_promos(products: &Vec<Product>) -> Vec<Promotion> {
+    // Map of promo_id: product item_id that returns that promo
+    let mut expected_promo_ids: HashMap<u32, String> = HashMap::new();
+
+    for product in products {
+        product
             .pricing
             .conditional_promotions
             .iter()
-            .filter_map(|p| p.promotion_id.map(|v| v.to_string()))
-            .collect();
-
-        let existing_promo_ids: Vec<String> =
-            promos.iter().map(|p| p.promotion_id.clone()).collect();
-
-        if !existing_promo_ids
-            .iter()
-            .any(|existing_promo| product_promos.contains(existing_promo))
-        {
-            match requests::get_promo(&product.id) {
-                Ok(p) => {
-                    println!(
-                        "Got promo {}: {}",
-                        &p.promotion_id,
-                        p.description
-                            .long_desc
-                            .clone()
-                            .unwrap_or(p.description.short_desc.clone())
-                    );
-
-                    promos.push(p);
+            .for_each(|promo| {
+                if let Some(promo_id) = promo.promotion_id {
+                    expected_promo_ids
+                        .entry(promo_id)
+                        .or_insert(product.id.clone());
                 }
-                Err(e) => {
-                    println!("Warning: {e}");
-                    continue;
-                }
-            };
-        }
+            });
     }
-    println!("Got {} products", products.len());
-    println!("Got {} promos", promos.len());
 
-    for product in products {
-        let product_db: ProductDB = product.into();
-        product_db.create(&pool).await?;
-    }
+    println!("Expecting {} promos", expected_promo_ids.len());
+
+    let futures = expected_promo_ids.values().map(|item_id| {
+        let id_clone = item_id.clone();
+
+        tokio::task::spawn_blocking(move || {
+            let promos = requests::get_promos_for_product(&id_clone).unwrap();
+            promos.iter().for_each(|promo| {
+                println!(
+                    "Got promo {}: {}",
+                    &promo.promotion_id,
+                    promo
+                        .description
+                        .long_desc
+                        .clone()
+                        .unwrap_or(promo.description.short_desc.clone())
+                );
+            });
+            promos
+        })
+    });
+
+    let results = join_all(futures).await;
+
+    results
+        .into_iter()
+        .filter_map(Result::ok)
+        .flatten()
+        .collect()
+}
+
+async fn get_additional_products(
+    products: &[Product],
+    promos: &[Promotion],
+) -> Result<Vec<Product>> {
+    let mut items_to_fetch: HashSet<String> = HashSet::new();
 
     for promo in promos {
         // Some promos have items in them which are not fetched by the earlier product
@@ -85,27 +161,23 @@ async fn main() -> Result<()> {
         // referencing
         for ec in promo.eligibility_criteria.iter() {
             for item_id in ec.item_ids.iter() {
-                fetch_product_if_not_exists(&pool, item_id).await?;
+                if !products.iter().any(|p| p.id == *item_id) {
+                    items_to_fetch.insert(item_id.to_string());
+                }
             }
         }
-
-        let promo_db: PromotionDB = promo.into();
-        promo_db.create(&pool).await?;
     }
 
-    ProductDB::delete_all_before(&pool, now).await?;
-    PromotionDB::delete_all_before(&pool, now).await?;
+    let futures = items_to_fetch.iter().map(|item_id| {
+        let id_clone = item_id.clone();
 
-    Ok(())
-}
+        tokio::task::spawn_blocking(move || {
+            println!("Promo item {id_clone} missing from DB. Fetching...");
+            get_product(&id_clone).unwrap()
+        })
+    });
 
-async fn fetch_product_if_not_exists(pool: &SqlitePool, item_id: &str) -> Result<()> {
-    let exists = ProductDB::check_exists(pool, item_id).await?;
-    if !exists {
-        println!("Promo item {item_id} missing from DB. Fetching...");
-        let product = get_product(item_id)?;
-        let product_db: ProductDB = product.into();
-        product_db.create(pool).await?;
-    }
-    Ok(())
+    let results = join_all(futures).await;
+
+    Ok(results.into_iter().filter_map(Result::ok).collect())
 }
