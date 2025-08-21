@@ -261,7 +261,7 @@ pub fn get_products(search_params: &SearchParams) -> Result<Vec<Product>> {
                     search_model.search_report.total_products
                 );
             }
-            // `search_model` will be null if you try to fetch and index above 720, even if the
+            // `search_model` will be null if you try to fetch an index above 720, even if the
             // search report says there are more than this
             _ => break,
         }
