@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Cart } from '$lib/pkg/algorithm';
-	import { Label, NumberInput, Tooltip } from 'flowbite-svelte';
+	import { Input, Label, Tooltip } from 'flowbite-svelte';
 	import { simplifyName } from '$lib/utils';
 
 	import OptionsCard from '$lib/components/OptionsCard.svelte';
@@ -138,19 +138,19 @@
 {#snippet options()}
 	<Label>
 		Min Cart Size
-		<NumberInput onchange={cartSizeRange} bind:value={minCartSize} />
+		<Input onchange={cartSizeRange} bind:value={minCartSize} />
 		<Tooltip>The minimum number of items in the cart. 2-4 is usually a good value.</Tooltip>
 	</Label>
 
 	<Label>
 		Max Cart Size
-		<NumberInput onchange={cartSizeRange} bind:value={maxCartSize} />
+		<Input onchange={cartSizeRange} bind:value={maxCartSize} />
 		<Tooltip>The maximum number of items in the cart. 4-5 is usually a good value.</Tooltip>
 	</Label>
 
 	<Label>
 		Minimum Cart Total
-		<NumberInput prefix="$" onchange={minTotalRange} bind:value={minCartTotal} />
+		<Input prefix="$" onchange={minTotalRange} bind:value={minCartTotal} />
 		<Tooltip>The minimum total cost of the items in the cart</Tooltip>
 	</Label>
 {/snippet}

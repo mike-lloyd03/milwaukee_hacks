@@ -8,14 +8,15 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<div class="flex">
+<div class="flex flex-col items-center justify-center md:flex-row">
 	<a href={`https://www.homedepot.com${data.product.canonical_url}`} target="_blank" class="w-full">
 		<img
 			src={data.product.image_primary_url.replace('<SIZE>', '400')}
 			alt="tool"
-			class="rounded-md"
+			class="mx-auto rounded-md"
 		/>
 	</a>
+
 	<div class="space-y-4">
 		<Heading tag="h3">
 			<a

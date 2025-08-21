@@ -29,7 +29,10 @@
 	<SearchInput bind:value={promosFilter} centered />
 
 	{#if activePromos.length}
-		<PromoListGroup promos={activePromos} searchTerm={promosFilter} includeExperienceTag
+		<PromoListGroup
+			promos={activePromos}
+			searchTerm={promosFilter}
+			includeExperienceTag
 		></PromoListGroup>
 	{/if}
 

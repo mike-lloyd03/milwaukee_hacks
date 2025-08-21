@@ -39,7 +39,7 @@
 			indices: r.positions
 		}))}
 		let:item={result}
-		class="mx-auto w-2xl"
+		class="mx-auto max-w-2xl"
 	>
 		<HighlightText str={result.title} indices={result.indices} />
 		{#if includeExperienceTag}

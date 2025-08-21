@@ -75,9 +75,6 @@
 							<P>{formatCurrency(carts[currentCart].total - rewardAmount(carts[currentCart]))}</P>
 						</div>
 					</div>
-					<div>
-						<P></P>
-					</div>
 				</div>
 
 				<div>
@@ -94,7 +91,7 @@
 								<div class="flex flex-col items-end">
 									<P>{formatCurrency(calculatePromoPrice(carts[currentCart], item))}</P>
 									<div>
-										<P size="sm" opacity={75}>
+										<P size="sm">
 											Save
 											{formatPercent(
 												1 - calculatePromoPrice(carts[currentCart], item) / item.price
