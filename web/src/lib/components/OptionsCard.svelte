@@ -79,7 +79,7 @@
 	}
 </script>
 
-<Card size="xl" class="mx-auto">
+<Card size="xl" class="mx-auto p-2">
 	<Heading tag="h5">Select Products</Heading>
 	<div class="my-4 flex flex-col gap-4">
 		<div class="space-y-3">

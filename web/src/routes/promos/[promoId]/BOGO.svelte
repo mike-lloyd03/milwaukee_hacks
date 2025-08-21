@@ -103,7 +103,7 @@
 <div class="space-y-4">
 	<PromoTitle {promo} />
 
-	<Card size="xl" class="mx-auto">
+	<Card size="xl" class="mx-auto p-2">
 		<div class="flex flex-col gap-4">
 			<div class="flex flex-col gap-8">
 				<div class="space-y-3">

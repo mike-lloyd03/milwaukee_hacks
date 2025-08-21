@@ -31,10 +31,10 @@
 </script>
 
 {#if filteredLinks.length > 0}
-	<Listgroup active class="mx-auto max-w-2xl">
+	<Listgroup active class="mx-auto text-gray-700">
 		{#each results as result (result.item.id)}
 			<ListgroupItem active>
-				<a href={result.item.href}>
+				<a href={result.item.href} class="mx-auto text-center">
 					<HighlightText str={result.item.title} indices={result.positions} />
 					{#if includeExperienceTag}
 						({result.item.experience_tag})

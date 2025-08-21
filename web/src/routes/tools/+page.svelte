@@ -39,7 +39,7 @@
 
 <div class="space-y-2">
 	<Heading tag="h2" class="mb-4">Tools</Heading>
-	<P class="text-center">All tools with active promotions ({results.length})</P>
+	<P class="text-center">All tools ({results.length})</P>
 
 	<div class="flex flex-col items-center gap-2 md:flex-row md:justify-between">
 		<SearchInput bind:value={productsFilter} />
