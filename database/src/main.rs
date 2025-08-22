@@ -2,13 +2,15 @@ use std::collections::{HashMap, HashSet};
 
 use anyhow::Result;
 use database::requests::{self, get_product, Brand, Department, SearchParams};
-use database::types::{Product, ProductDB, Promotion, PromotionDB};
+use database::types::{Product, ProductDB, Promotion, PromotionDB, Run};
 use database::{config, now_timestamp};
 use futures::future::join_all;
 use sqlx::{sqlite::SqliteConnectOptions, SqlitePool};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let mut run = Run::start();
+
     let load = config::Config::load("config.toml")?;
     let config = load;
     let options = SqliteConnectOptions::new()
@@ -31,6 +33,9 @@ async fn main() -> Result<()> {
 
     let mut tx = pool.begin().await?;
 
+    run.total_products = (products.len() + additional_products.len()) as u32;
+    run.total_promotions = promos.len() as u32;
+
     for product in products {
         let product_db: ProductDB = product.into();
         product_db.create(&mut *tx).await?;
@@ -50,6 +55,10 @@ async fn main() -> Result<()> {
 
     ProductDB::delete_all_before(&pool, now).await?;
     PromotionDB::delete_all_before(&pool, now).await?;
+
+    run.end();
+    run.write(&pool).await?;
+    println!("Run complete. Total time: {}", run.duration);
 
     Ok(())
 }
