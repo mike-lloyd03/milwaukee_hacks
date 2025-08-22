@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        insert into runs (\n            total_products,\n            total_promotions,\n            start_time,\n            end_time,\n            duration\n        ) values ($1, $2, $3, $4, $5)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 5
+    },
+    "nullable": []
+  },
+  "hash": "99d95cddf756b7904e7917acaf9d252f81f783f68eeeb5f55d969f9614c12b68"
+}
