@@ -58,7 +58,7 @@ async fn main() -> Result<()> {
 
     run.end();
     run.write(&pool).await?;
-    println!("Run complete. Total time: {}", run.duration);
+    println!("Run complete. Total time: {} seconds", run.duration);
 
     Ok(())
 }
